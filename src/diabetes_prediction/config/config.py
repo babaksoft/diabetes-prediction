@@ -13,17 +13,9 @@ TEST_FILE = "test.csv"
 
 TARGET = "diabetes"
 
-# TODO: Set names of features used for training
-# Note: probably not required as there are only 9-10 features
-FEATURES = []
+NUMERICAL_FEATURES = ["age", "bmi", "HbA1c_level", "blood_glucose_level"]
 
-# TODO: Set names of numerical features
-NUMERICAL_FEATURES = []
+CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 
-# TODO: Set names of categorical features
-CATEGORICAL_FEATURES = []
-
-FEATURES_TO_ENCODE = []
-
-# Features for log transformation
-LOG_FEATURES = []
+# Binary (0/1) features
+BINARY_FEATURES = ["hypertension", "heart_disease"]
