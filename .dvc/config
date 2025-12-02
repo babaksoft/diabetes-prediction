@@ -1,4 +1,5 @@
 [core]
     remote = local_dvc
+    analytics = false
 ['remote "local_dvc"']
     url = ../../_local_dvc_
