@@ -13,9 +13,9 @@ from pipeline import pipeline
 
 
 def save_artifacts(model, metrics):
-    path = Path(config.PACKAGE_ROOT) / "model" / "model.joblib"
+    path = Path(config.MODEL_PATH) / "model.joblib"
     joblib.dump(model, path)
-    path = Path(config.PACKAGE_ROOT) / "metrics" / "metrics.json"
+    path = Path(config.METRICS_PATH) / "metrics.json"
     with open(path, "w") as file:
         json.dump(metrics, file)
 
@@ -36,9 +36,9 @@ def train(data_path):
         y_train, y_predict, average="binary"
     )
     metrics = {
-        "Precision": round(precision, 4),
-        "Recall": round(recall, 4),
-        "F1 score": round(f1_score, 4)
+        "Precision (train)": round(precision, 4),
+        "Recall (train)": round(recall, 4),
+        "F1 score (train)": round(f1_score, 4)
     }
     save_artifacts(full_pipeline, metrics)
 
@@ -47,7 +47,7 @@ def main():
     path = Path(config.DATA_PATH) / "prepared" / config.TRAIN_FILE
     if not os.path.exists(path):
         raise FileNotFoundError(
-            "Train data not found. Please run ingest.py before training."
+            "Train dataset not found. Please run ingest.py before training."
         )
 
     train(path)

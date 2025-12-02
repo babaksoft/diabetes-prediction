@@ -5,6 +5,7 @@ PACKAGE_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 DATA_PATH = PACKAGE_ROOT / "data"
 MODEL_PATH = PACKAGE_ROOT / "model"
+METRICS_PATH = PACKAGE_ROOT / "metrics"
 
 RAW_FILE = "diabetes_prediction.csv"
 TRAIN_FILE = "train.csv"
