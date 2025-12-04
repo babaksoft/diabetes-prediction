@@ -12,8 +12,13 @@ import utils
 
 
 def save_artifacts(model, metrics):
+    if not os.path.exists(config.MODEL_PATH):
+        os.mkdir(config.MODEL_PATH)
     path = Path(config.MODEL_PATH) / "model.joblib"
     joblib.dump(model, path)
+
+    if not os.path.exists(config.METRICS_PATH):
+        os.mkdir(config.METRICS_PATH)
     path = Path(config.METRICS_PATH) / "metrics.json"
     with open(path, "w") as file:
         json.dump(metrics, file)

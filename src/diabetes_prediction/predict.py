@@ -36,7 +36,8 @@ def main():
             "Test dataset not found. Please run ingest.py before predicting."
         )
 
-    predict(data_path)
+    prediction = predict(data_path)
+    print(prediction)
 
 
 if __name__ == '__main__':

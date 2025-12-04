@@ -32,10 +32,12 @@ def main():
     raw_path = Path(config.DATA_PATH) / "raw" / config.RAW_FILE
     if not os.path.exists(raw_path):
         raise FileNotFoundError(
-            "Raw dataset not found. Please run 'dvc pull' before ingesting."
+            "Raw dataset not found. You may need to reinstall this package."
         )
 
     to_dir = Path(config.DATA_PATH) / "prepared"
+    if not os.path.exists(to_dir):
+        os.mkdir(to_dir)
     if os.path.exists(to_dir / config.TRAIN_FILE) or \
         os.path.exists(to_dir / config.VALIDATION_FILE) or \
         os.path.exists(to_dir / config.TEST_FILE):

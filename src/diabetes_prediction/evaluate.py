@@ -9,6 +9,8 @@ import utils
 
 
 def save_metrics(metrics):
+    if not os.path.exists(config.METRICS_PATH):
+        os.mkdir(config.METRICS_PATH)
     path = Path(config.METRICS_PATH) / "test_metrics.json"
     with open(path, "w") as file:
         json.dump(metrics, file)
