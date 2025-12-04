@@ -3,13 +3,12 @@ import json
 from pathlib import Path
 
 import joblib
-import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
 from sklearn.pipeline import make_pipeline
 
 from config import config
 from pipeline import pipeline
+import utils
 
 
 def save_artifacts(model, metrics):
@@ -21,36 +20,27 @@ def save_artifacts(model, metrics):
 
 
 def train(data_path):
-    data = pd.read_csv(data_path)
-    x_train = data.drop(config.TARGET, axis=1)
-    y_train = data[config.TARGET]
+    x_train, y_train = utils.feature_target_split(data_path)
     full_pipeline = make_pipeline(
         pipeline,
         LogisticRegression()
     )
 
     full_pipeline.fit(x_train, y_train)
-    y_predict = full_pipeline.predict(x_train)
-
-    precision, recall, f1_score, _ = precision_recall_fscore_support(
-        y_train, y_predict, average="binary"
+    metrics = utils.evaluate_model(
+        full_pipeline, x_train, y_train, "train"
     )
-    metrics = {
-        "Precision (train)": round(precision, 4),
-        "Recall (train)": round(recall, 4),
-        "F1 score (train)": round(f1_score, 4)
-    }
     save_artifacts(full_pipeline, metrics)
 
 
 def main():
-    path = Path(config.DATA_PATH) / "prepared" / config.TRAIN_FILE
-    if not os.path.exists(path):
+    data_path = Path(config.DATA_PATH) / "prepared" / config.TRAIN_FILE
+    if not os.path.exists(data_path):
         raise FileNotFoundError(
             "Train dataset not found. Please run ingest.py before training."
         )
 
-    train(path)
+    train(data_path)
 
 
 if __name__ == "__main__":

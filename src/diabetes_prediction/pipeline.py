@@ -16,6 +16,8 @@ def build_pipeline() -> ColumnTransformer:
         SimpleImputer(strategy="mean"),
         StandardScaler()
     )
+
+    # In both binary features, most frequent value is 0
     bin_transform = SimpleImputer(
         strategy="constant", fill_value=np.int64(0.0)
     )

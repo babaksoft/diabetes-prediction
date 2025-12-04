@@ -40,8 +40,10 @@ def main():
         os.path.exists(to_dir / config.VALIDATION_FILE) or \
         os.path.exists(to_dir / config.TEST_FILE):
         print("[INFO] Dataset is already ingested.")
+        return
 
     ingest(raw_path, to_dir)
+    print("[INFO] Raw dataset successfully ingested.")
 
 
 if __name__ == '__main__':

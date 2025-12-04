@@ -3,10 +3,9 @@ import json
 from pathlib import Path
 
 import joblib
-import pandas as pd
-from sklearn.metrics import precision_recall_fscore_support
 
 from config import config
+import utils
 
 
 def save_metrics(metrics):
@@ -16,37 +15,28 @@ def save_metrics(metrics):
 
 
 def evaluate(model_path, data_path):
-    data = pd.read_csv(data_path)
-    x_test = data.drop(config.TARGET, axis=1)
-    y_test = data[config.TARGET]
+    x_test, y_test = utils.feature_target_split(data_path)
     pipeline = joblib.load(model_path)
-
-    y_predict = pipeline.predict(x_test)
-    precision, recall, f1_score, _ = precision_recall_fscore_support(
-        y_test, y_predict, average="binary"
+    metrics = utils.evaluate_model(
+        pipeline, x_test, y_test, "test"
     )
-    metrics_ = {
-        "Precision (test)": round(precision, 4),
-        "Recall (test)": round(recall, 4),
-        "F1 score (test)": round(f1_score, 4)
-    }
-    save_metrics(metrics_)
+    save_metrics(metrics)
 
 
 def main():
-    data_path_ = Path(config.DATA_PATH) / "prepared" / config.TEST_FILE
-    if not os.path.exists(data_path_):
+    data_path = Path(config.DATA_PATH) / "prepared" / config.TEST_FILE
+    if not os.path.exists(data_path):
         raise FileNotFoundError(
             "Test dataset not found. Please run ingest.py before evaluating."
         )
-    model_path_ = Path(config.MODEL_PATH) / "model.joblib"
-    if not os.path.exists(model_path_):
+    model_path = Path(config.MODEL_PATH) / "model.joblib"
+    if not os.path.exists(model_path):
         raise FileNotFoundError(
             "Trained model not found. Please run train.py before evaluating."
         )
 
-    evaluate(model_path_, data_path_)
+    evaluate(model_path, data_path)
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     main()
