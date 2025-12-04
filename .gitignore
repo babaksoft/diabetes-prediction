@@ -1,12 +1,11 @@
 # Common Python and IDE artifacts
 .env
 __pycache__/
+.pytest_cache/
 .idea/
 
 # Common virtual environment and Jupyter notebook stuff
 .ipynb_checkpoints/
 .venv/
 
-/model
-/metrics
 /dist

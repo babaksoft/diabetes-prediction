@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
 
-from src.diabetes_prediction.config import config
-from src.diabetes_prediction.predict import make_prediction
+from diabetes_prediction.config import config
+from diabetes_prediction.predict import make_prediction
 
 
 @pytest.fixture

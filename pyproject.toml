@@ -3,7 +3,7 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [project]
-name = "diabetes_prediction"
+name = "diabetes-prediction"
 version = "0.1.0"
 description = "ML Package for predicting the onset of diabetes"
 readme = "README.md"
@@ -40,9 +40,6 @@ exclude = [
     "/.dvc",
     "**/*.dvc",
     "**/.gitignore",
-    "/data/prepared/*.csv",
-    "/model/*.*",
-    "/metrics/*.*",
     "/notebooks",
     "/tests",
     ".gitignore",

@@ -5,7 +5,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from src.diabetes_prediction.config import config
+from .config import config
 
 
 def make_prediction(input_data):
