@@ -28,7 +28,9 @@ dependencies = [
 "scikit-learn>=1.7.2",
 "seaborn>=0.13.2",
 "pytest>=9.0.1",
-"joblib>=1.5.2"
+"joblib>=1.5.2",
+"mlflow>=3.6.0",
+"psycopg2-binary>=2.9.11"
 ]
 
 [project.urls]

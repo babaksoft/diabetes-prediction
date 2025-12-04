@@ -1,3 +1,5 @@
+tqdm
+mlflow-skinny
 numpy
 scipy
 pandas
@@ -6,3 +8,5 @@ scikit-learn
 seaborn
 pytest
 joblib
+mlflow
+psycopg2-binary

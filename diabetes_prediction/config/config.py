@@ -1,6 +1,7 @@
 from pathlib import Path
 
 
+PROJECT_NAME = "diabetes-prediction"
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 
 DATA_PATH = PACKAGE_ROOT / "data"
