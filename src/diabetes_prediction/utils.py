@@ -8,6 +8,10 @@ import mlflow
 from .config import config
 
 
+def make_label(label: str, label_type: str | None = None) -> str:
+    return f"{label} ({label_type})" if label_type else label
+
+
 def feature_target_split(csv_path):
     data = pd.read_csv(csv_path)
     x = data.drop(config.TARGET, axis=1)
@@ -21,8 +25,6 @@ def evaluate_model(model, x, y, name: str | None = None):
         y, y_predict, average="binary"
     )
 
-    make_label = lambda label, label_type:\
-        f"{label} ({label_type})" if label_type else label
     metrics = {
         make_label("Precision", name): round(precision, 4),
         make_label("Recall", name): round(recall, 4),
