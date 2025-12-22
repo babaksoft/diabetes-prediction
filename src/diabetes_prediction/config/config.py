@@ -1,6 +1,8 @@
 from pathlib import Path
 
 
+RANDOM_STATE = 147
+
 PROJECT_NAME = "diabetes-prediction"
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 
@@ -21,5 +23,3 @@ CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 
 # Binary (0/1) features
 BINARY_FEATURES = ["hypertension", "heart_disease"]
-
-RANDOM_STATE = 147

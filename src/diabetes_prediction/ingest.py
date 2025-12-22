@@ -5,14 +5,13 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from .config import config
+from .utils import feature_target_split
 
 
 def ingest(raw_path, to_dir):
-    rs = 147  # Set a random state for repeatability
+    rs = config.RANDOM_STATE
 
-    data = pd.read_csv(raw_path)
-    x = data.drop(config.TARGET, axis=1)
-    y = data[config.TARGET]
+    x, y = feature_target_split(raw_path)
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=0.2, stratify=y, random_state=rs
     )

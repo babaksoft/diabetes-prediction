@@ -1,6 +1,9 @@
 # Diabetes Prediction
 
-![Python version](https://img.shields.io/badge/python-3.10-blue)
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https://github.com/babaksoft/diabetes-prediction/raw/refs/heads/master/pyproject.toml)
+![Static Badge](https://img.shields.io/badge/task-classification-orange)
+![Static Badge](https://img.shields.io/badge/framework-sklearn-orange)
+
 
 ### Problem
 This is a classification problem where the model predicts whether a person has diabetes or not,
