@@ -6,9 +6,9 @@ import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 
-from config import config
-from pipeline import pipeline
-import utils
+from .config import config
+from .pipeline import pipeline
+from .utils import feature_target_split, evaluate_model
 
 
 def save_artifacts(model, metrics):
@@ -25,14 +25,14 @@ def save_artifacts(model, metrics):
 
 
 def train(data_path):
-    x_train, y_train = utils.feature_target_split(data_path)
+    x_train, y_train = feature_target_split(data_path)
     full_pipeline = make_pipeline(
         pipeline,
         LogisticRegression()
     )
 
     full_pipeline.fit(x_train, y_train)
-    metrics = utils.evaluate_model(
+    metrics = evaluate_model(
         full_pipeline, x_train, y_train, "train"
     )
     save_artifacts(full_pipeline, metrics)

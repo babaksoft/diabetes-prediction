@@ -7,17 +7,11 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 from tqdm import tqdm
-import sys
-import os
 
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
-sys.path.append(parent_dir)
-
-from config import config
-from pipeline import pipeline
-from utils import feature_target_split, mlflow_register
-from utils import plot_metrics, train_and_validate
+from ..config import config
+from ..pipeline import pipeline
+from ..utils import feature_target_split, mlflow_register
+from ..utils import plot_metrics, train_and_validate
 
 
 # Train and validate several models on given train data

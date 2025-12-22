@@ -5,7 +5,7 @@ from sklearn.metrics import recall_score, precision_recall_fscore_support
 from sklearn.model_selection import cross_val_score
 import mlflow
 
-from config import config
+from .config import config
 
 
 def feature_target_split(csv_path):

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import joblib
 
-from config import config
-import utils
+from .config import config
+from .utils import feature_target_split, evaluate_model
 
 
 def save_metrics(metrics):
@@ -17,9 +17,9 @@ def save_metrics(metrics):
 
 
 def evaluate(model_path, data_path):
-    x_test, y_test = utils.feature_target_split(data_path)
+    x_test, y_test = feature_target_split(data_path)
     pipeline = joblib.load(model_path)
-    metrics = utils.evaluate_model(
+    metrics = evaluate_model(
         pipeline, x_test, y_test, "test"
     )
     save_metrics(metrics)
