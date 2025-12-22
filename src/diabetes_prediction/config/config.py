@@ -21,3 +21,5 @@ CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 
 # Binary (0/1) features
 BINARY_FEATURES = ["hypertension", "heart_disease"]
+
+RANDOM_STATE = 147
