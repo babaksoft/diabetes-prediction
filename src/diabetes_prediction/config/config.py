@@ -23,3 +23,15 @@ CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 
 # Binary (0/1) features
 BINARY_FEATURES = ["hypertension", "heart_disease"]
+
+# First data point in test set
+TEST_INSTANCE = {
+    "gender": "Male",
+    "age": 24.0,
+    "hypertension": 0,
+    "heart_disease": 0,
+    "smoking_history": "No Info",
+    "bmi": 28.07,
+    "HbA1c_level": 6.2,
+    "blood_glucose_level": 155,
+}
