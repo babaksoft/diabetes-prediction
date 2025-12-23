@@ -32,10 +32,10 @@ async  def index():
 
 @app.post("/predict")
 async def predict(diabetes: Diabetes):
-    data = diabetes.as_data_point()
+    data = diabetes.as_dataframe()
     prediction = model.predict(data)
     output = np.where(prediction==1, "Diabetes", "No Diabetes").tolist()
-    return {"prediction": output[0]}
+    return { "prediction": output[0] }
 
 
 if __name__ == "__main__":

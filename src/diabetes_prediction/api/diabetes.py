@@ -12,7 +12,7 @@ class Diabetes(BaseModel):
     MeanGlucoseLevel: float
     GlucoseLevel: float
 
-    def as_data_point(self):
+    def as_dataframe(self):
         data = pd.Series({
             "gender": self.Gender,
             "age": self.Age,
@@ -24,3 +24,28 @@ class Diabetes(BaseModel):
             "blood_glucose_level": self.GlucoseLevel,
         })
         return pd.DataFrame([data])
+
+    @classmethod
+    def from_data(
+        cls,
+        gender: str,
+        age: int,
+        hypertension: str,
+        heart_disease: str,
+        smoking: str,
+        bmi: float,
+        mean_glucose: float,
+        glucose: float
+    ):
+        hypertension = 1 if hypertension == "Yes" else 0
+        heart_disease = 1 if heart_disease == "Yes" else 0
+        return Diabetes(
+            Gender=gender,
+            Age=age,
+            Hypertension=hypertension,
+            HeartDisease=heart_disease,
+            SmokingHistory=smoking,
+            BMI=bmi,
+            MeanGlucoseLevel=mean_glucose,
+            GlucoseLevel=glucose
+        )
