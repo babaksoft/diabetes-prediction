@@ -5,7 +5,8 @@ from pathlib import Path
 import joblib
 
 from .config import config
-from .utils import feature_target_split, evaluate_model
+from .utils import feature_target_split, evaluate_model, \
+    plot_confusion_matrix, plot_roc_curve, plot_pr_curve
 
 
 def save_metrics(metrics):
@@ -23,6 +24,9 @@ def evaluate(model_path, data_path):
         pipeline, x_test, y_test, "test"
     )
     save_metrics(metrics)
+    plot_confusion_matrix(pipeline, x_test, y_test)
+    plot_roc_curve(pipeline, x_test, y_test)
+    plot_pr_curve(pipeline, x_test, y_test)
 
 
 def main():

@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import recall_score, precision_recall_fscore_support
+from sklearn.metrics import \
+    recall_score, precision_recall_fscore_support, precision_recall_curve
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
 from sklearn.model_selection import cross_val_score
 import mlflow
 
@@ -68,6 +71,40 @@ def plot_metrics(train, val, names):
     fig.tight_layout()
 
     path = config.METRICS_PATH / "Train_Val_Recall.png"
+    plt.savefig(path)
+    plt.close()
+
+
+# Plot confusion matrix using a default matplotlib colormap
+def plot_confusion_matrix(model, x, y, cmap="summer", normalize=None):
+    y_predict = model.predict(x)
+    cm = confusion_matrix(y, y_predict, labels=model.classes_, normalize=normalize)
+    cm_display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+
+    cm_display.plot(cmap=cmap)
+    path = config.METRICS_PATH / "CM.png"
+    plt.savefig(path)
+    plt.close()
+
+
+# Plot ROC curve for given model and train/val/test data
+def plot_roc_curve(model, x, y):
+    roc_display = RocCurveDisplay.from_estimator(model, x, y)
+
+    roc_display.plot()
+    path = config.METRICS_PATH / "ROC.png"
+    plt.savefig(path)
+    plt.close()
+
+
+# Plot Precision-Recall (PR) curve
+def plot_pr_curve(model, x, y):
+    predictions = model.predict(x)
+    precision, recall, _ = precision_recall_curve(y, predictions)
+    pr_display = PrecisionRecallDisplay(precision=precision, recall=recall)
+
+    pr_display.plot()
+    path = config.METRICS_PATH / "PR.png"
     plt.savefig(path)
     plt.close()
 

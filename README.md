@@ -28,4 +28,19 @@ The data corresponds to demographic and health information.
 
 Source: Kaggle
 
-(More details will be added later...)
+## Model performance
+
+|            | Train  | Test   |
+|------------|--------|--------|
+| Precision  | 0.8675 | 0.8568 |
+| Recall     | 0.6292 | 0.63   |
+| F1 Score   | 0.7294 | 0.7261 |
+
+### Confusion Matrix
+![Confusion Matrix](./src/diabetes_prediction/metrics/CM.png)
+
+### ROC Curve (with AUC score)
+![ROC-AUC Curve](./src/diabetes_prediction/metrics/ROC.png)
+
+### Precision-Recall (PR) curve
+![PR Curve](./src/diabetes_prediction/metrics/PR.png)
