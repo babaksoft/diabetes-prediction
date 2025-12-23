@@ -8,8 +8,6 @@ from diabetes_prediction.predict import make_prediction
 @pytest.fixture
 def single_prediction():
     """ This function will predict the result for a single record"""
-    #data_path = config.DATA_PATH / "prepared" / config.TEST_FILE
-    #df_test = pd.read_csv(data_path)
     single_test = pd.Series(config.TEST_INSTANCE)
     result = make_prediction([single_test])
     return result

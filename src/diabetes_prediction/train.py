@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 
 import joblib
-from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 
 from .config import config
@@ -28,7 +27,7 @@ def train(data_path):
     x_train, y_train = feature_target_split(data_path)
     full_pipeline = make_pipeline(
         pipeline,
-        LogisticRegression()
+        config.BASELINE_MODEL
     )
 
     full_pipeline.fit(x_train, y_train)

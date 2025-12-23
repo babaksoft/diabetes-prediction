@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from sklearn.naive_bayes import GaussianNB
 
 RANDOM_STATE = 147
 
@@ -23,6 +24,8 @@ CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 
 # Binary (0/1) features
 BINARY_FEATURES = ["hypertension", "heart_disease"]
+
+BASELINE_MODEL = GaussianNB()
 
 # First data point in test set
 TEST_INSTANCE = {
