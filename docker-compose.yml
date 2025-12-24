@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  api:
+    build: ./src/diabetes_prediction/api
+    container_name: diabetes_api
+    restart: always
+    ports:
+      - "8000:8000"
+    networks:
+      - diabetes-network
+  app:
+    build: ./src/diabetes_prediction/app
+    container_name: diabetes_app
+    restart: always
+    ports:
+      - "8501:8501"
+    networks:
+      - diabetes-network
+    depends_on:
+      - api
+networks:
+  diabetes-network:
+    driver: bridge

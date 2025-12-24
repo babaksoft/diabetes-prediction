@@ -13,7 +13,7 @@ def get_prediction(
         mean_glucose: float,
         glucose: float
 ):
-    url = "http://127.0.0.1:8000/predict"
+    url = "http://api:8000/predict"
     diabetes = {
         "Gender": gender,
         "Age": age,
