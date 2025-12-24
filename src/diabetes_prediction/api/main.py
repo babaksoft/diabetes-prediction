@@ -1,17 +1,17 @@
 import os
 from pathlib import Path
 
+import joblib
 import numpy as np
 from fastapi import FastAPI
 import uvicorn
-import joblib
 
-from .diabetes import Diabetes
-from ..config import config
+from diabetes import Diabetes
 
 
 def load_model():
-    path = Path(config.MODEL_PATH) / "model.joblib"
+    curr_dir = Path(__file__).resolve().parent
+    path = curr_dir / "model.joblib"
     if not os.path.exists(path):
         raise FileNotFoundError("Model file not found.")
     return joblib.load(path)
