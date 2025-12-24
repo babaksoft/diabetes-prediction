@@ -1,7 +1,6 @@
 import streamlit as st
 
-from diabetes_prediction.api.diabetes import Diabetes
-from diabetes_prediction.app.api_client import post_data
+from api_client import post_data
 
 @st.cache_data()
 def get_prediction(
@@ -15,11 +14,20 @@ def get_prediction(
         glucose: float
 ):
     url = "http://127.0.0.1:8000/predict"
-    diabetes = Diabetes.from_data(
-        gender, age, hypertension, heart_disease,
-        smoking, bmi, mean_glucose, glucose)
-    diabetes = diabetes.model_dump()
+    diabetes = {
+        "Gender": gender,
+        "Age": age,
+        "Hypertension": 1 if hypertension == "yes" else 0,
+        "HeartDisease": 1 if heart_disease == "Yes" else 0,
+        "SmokingHistory": smoking,
+        "BMI": bmi,
+        "MeanGlucoseLevel": mean_glucose,
+        "GlucoseLevel": glucose
+    }
     result = post_data(url, diabetes)
+    if not result["data"]:
+        return result["message"]
+
     prediction = result["data"]["prediction"] if result["data"] else None
     return prediction
 
@@ -53,15 +61,14 @@ def main():
             smoking, bmi, mean_glucose, glucose
         )
 
-        if result:
-            pos_msg = "Congratulations! You do NOT have diabetes."
-            neg_msg = "You MAY have diabetes. Please consult your physician."
-            if result == "No Diabetes":
-                st.success(pos_msg)
-            elif result == "Diabetes":
-                st.warning(neg_msg)
-            else:
-                st.info("Could not make a prediction. Please try again.")
+        pos_msg = "Congratulations! You do NOT have diabetes."
+        neg_msg = "You MAY have diabetes. Please consult your physician."
+        if result == "No Diabetes":
+            st.success(pos_msg)
+        elif result == "Diabetes":
+            st.warning(neg_msg)
+        else:
+            st.error(result)
 
 
 if __name__=='__main__':

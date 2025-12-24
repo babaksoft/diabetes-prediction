@@ -8,10 +8,15 @@ from requests.exceptions import HTTPError, RequestException
 def get_result(
         response: Response | None = None,
         error: Exception | None = None) -> dict[str, Any]:
-    if not response:
-        return { "message": "An unexpected error occurred : {error}" }
+    result: dict[str, Any] = {
+        "data": None,
+        "message": None
+    }
 
-    result = {}
+    if not response:
+        result["message"] = f"An unexpected error occurred : {error}"
+        return result
+
     code = response.status_code
     if 200 <= code < 300:
         result["status"] = "Success"
