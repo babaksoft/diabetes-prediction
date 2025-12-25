@@ -2,11 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import \
-    recall_score, precision_recall_fscore_support, precision_recall_curve
+    precision_recall_fscore_support, precision_recall_curve
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_validate
 import mlflow
+from mlflow.models import infer_signature
 
 from .config import config
 
@@ -36,24 +37,34 @@ def evaluate_model(model, x, y, name: str | None = None):
     return metrics
 
 
-# Train a model and return train/validation Recall
+# Train a model and return train/validation metrics
 def train_and_validate(model, x_train, y_train, cv=5):
     model.fit(x_train, y_train)
 
-    # Training Recall
+    # Training metrics
     y_predict = model.predict(x_train)
-    train_recall = recall_score(y_train, y_predict)
-
-    # Validation Recall
-    val_recall = cross_val_score(
-        model, x_train, y_train, scoring="recall", cv=cv
+    precision, recall, fscore, _ = precision_recall_fscore_support(
+        y_train, y_predict, average="binary"
     )
 
-    return train_recall, val_recall.mean()
+    # Validation metrics
+    scoring = ["precision", "recall", "f1"]
+    scores = cross_validate(
+        model, x_train, y_train, scoring=scoring, cv=cv
+    )
+
+    return pd.Series({
+        "Train Recall": recall,
+        "Val Recall": scores["test_recall"].mean(),
+        "Train Precision": precision,
+        "Val Precision": scores["test_precision"].mean(),
+        "Train FScore": fscore,
+        "Val FScore": scores["test_f1"].mean(),
+    })
 
 
 # Plot side-by-side train/validation metrics in a bar chart
-def plot_metrics(train, val, names):
+def plot_metrics(train, val, metric, names):
     fig, ax = plt.subplots()
     bar_width = 0.35
     index = np.arange(len(names))
@@ -62,15 +73,15 @@ def plot_metrics(train, val, names):
     ax.bar(index + bar_width, val, bar_width, label="validation")
 
     ax.set_xlabel("Trained Model")
-    ax.set_ylabel("Recall")
-    ax.set_title("Train vs. Validation Recall")
+    ax.set_ylabel(metric)
+    ax.set_title(f"Train vs. Validation {metric}")
     ax.set_xticks(index + bar_width / 2)
     ax.set_xticklabels(names)
 
     ax.legend(loc="best")
     fig.tight_layout()
 
-    path = config.METRICS_PATH / "Train_Val_Recall.png"
+    path = config.METRICS_PATH / f"Train_Val_{metric}.png"
     plt.savefig(path)
     plt.close()
 
@@ -111,12 +122,15 @@ def plot_pr_curve(model, x, y):
 
 # Log model attributes in current MLFlow experiment
 def mlflow_register(
-        model, model_name: str, run_name: str, metrics: dict[str, float]
+        model, model_name: str, x_train, run_name: str, metrics: dict[str, float]
 ):
-    with mlflow.start_run(run_name=run_name):
+    with mlflow.start_run(run_name=run_name) as run:
         mlflow.set_tag("project", config.PROJECT_NAME)
+        mlflow.set_tag("run_id", run.info.run_id)
         mlflow.log_params(model.get_params())
         mlflow.log_metrics(metrics)
-        mlflow.sklearn.log_model(model, name=model_name)
+
+        signature = infer_signature(x_train, model.predict(x_train))
+        mlflow.sklearn.log_model(model, name=model_name, signature=signature)
 
         mlflow.end_run()

@@ -4,7 +4,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from config import config
+from .config import config
 
 
 def build_pipeline() -> ColumnTransformer:
