@@ -2,32 +2,34 @@ from pathlib import Path
 
 from sklearn.naive_bayes import GaussianNB
 
+# Global config
 RANDOM_STATE = 147
-
 PROJECT_NAME = "diabetes-prediction"
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 
+# Path config
 DATA_PATH = PACKAGE_ROOT / "data"
 MODEL_PATH = PACKAGE_ROOT / "model"
 METRICS_PATH = PACKAGE_ROOT / "metrics"
 
+# Data ingestion config
 RAW_FILE = "diabetes_prediction.csv"
 TRAIN_FILE = "train.csv"
-VALIDATION_FILE = "validation.csv"
+VAL_FILE = "validation.csv"
 TEST_FILE = "test.csv"
+TEST_SPLIT = 0.2 # Used during train/test split
+VAL_SPLIT = 0.5 # Used during test/val split
 
+# Preprocessing pipeline config
 TARGET = "diabetes"
-
 NUMERICAL_FEATURES = ["age", "bmi", "HbA1c_level", "blood_glucose_level"]
-
 CATEGORICAL_FEATURES = ["gender", "smoking_history"]
-
-# Binary (0/1) features
 BINARY_FEATURES = ["hypertension", "heart_disease"]
 
+# Training config
 BASELINE_MODEL = GaussianNB()
 
-# First data point in test set
+# Prediction config (first data point in test set)
 TEST_INSTANCE = {
     "gender": "Male",
     "age": 24.0,
