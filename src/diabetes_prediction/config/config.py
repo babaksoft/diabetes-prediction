@@ -5,6 +5,7 @@ from sklearn.naive_bayes import GaussianNB
 # Global config
 RANDOM_STATE = 147
 PROJECT_NAME = "diabetes-prediction"
+MLFLOW_TRACKING_URI = "http://localhost:5000/"
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 
 # Path config
@@ -17,8 +18,8 @@ RAW_FILE = "diabetes_prediction.csv"
 TRAIN_FILE = "train.csv"
 VAL_FILE = "validation.csv"
 TEST_FILE = "test.csv"
-TEST_SPLIT = 0.2 # Used during train/test split
-VAL_SPLIT = 0.5 # Used during test/val split
+TRAIN_TEST_SPLIT = 0.2 # Used during train/test split
+TEST_VAL_SPLIT = 0.5 # Used during test/val split
 
 # Preprocessing pipeline config
 TARGET = "diabetes"
