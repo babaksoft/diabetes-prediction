@@ -12,6 +12,35 @@ from mlflow.models import infer_signature
 from .config import config
 
 
+def fix_label_noise(data: pd.DataFrame, target_col: str) -> pd.DataFrame:
+    df: pd.DataFrame = data.copy()
+    features = list(df.columns.drop(target_col))
+
+    # Step 1 : Find feature groups with >1 unique label
+    # Group by all feature columns
+    grouped = df.groupby(features)[target_col].nunique()
+
+    # Groups where label count > 1
+    conflicting_groups = grouped[grouped > 1]
+
+    # Step 2 : Extract all conflicting rows
+    # Identify feature combinations with conflicts
+    conflict_keys = conflicting_groups.index
+
+    # Convert multi-index to DataFrame for merging
+    df_conflict = pd.DataFrame(list(conflict_keys), columns=features)
+
+    # Merge back to original df
+    df.merge(df_conflict, on=features, how="inner")
+
+    # Step 3 : Remove conflicting rows
+    # Remove all rows that belong to conflicting groups
+    df_clean = df.merge(df_conflict, on=features, how="left", indicator=True)
+    df_clean = df_clean[df_clean["_merge"] == "left_only"].drop(columns="_merge")
+
+    return df_clean
+
+
 def make_label(label: str, label_type: str | None = None) -> str:
     return f"{label} ({label_type})" if label_type else label
 
