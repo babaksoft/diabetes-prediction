@@ -1,15 +1,33 @@
+import os
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+import matplotlib.pyplot as plt
+import mlflow
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import \
-    precision_recall_fscore_support, precision_recall_curve
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
-from sklearn.model_selection import cross_validate
-import mlflow
 from mlflow.models import infer_signature
+from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import precision_recall_curve
+from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.pipeline import Pipeline
 
 from .config import config
+from .pipeline import build_pipeline
+
+
+def get_train_data():
+    train_path = Path(config.DATA_PATH) / "prepared" / config.TRAIN_FILE
+    if not os.path.exists(train_path):
+        raise FileNotFoundError(
+            "Train dataset not found. Please run ingest.py before training.")
+
+    df = pd.read_csv(train_path)
+    x_train = df.drop(config.TARGET, axis=1)
+    y_train = df[config.TARGET]
+    return x_train, y_train
 
 
 def fix_label_noise(data: pd.DataFrame, target_col: str) -> pd.DataFrame:
@@ -41,55 +59,48 @@ def fix_label_noise(data: pd.DataFrame, target_col: str) -> pd.DataFrame:
     return df_clean
 
 
-def make_label(label: str, label_type: str | None = None) -> str:
-    return f"{label} ({label_type})" if label_type else label
+def evaluate_model(model, run_name) -> dict[str, Any]:
+    with mlflow.start_run(run_name=run_name) as run:
+        mlflow.set_tag("run_id", run.info.run_id)
 
+        x, y = get_train_data()
+        cv = StratifiedKFold(
+            n_splits=10, shuffle=True,
+            random_state=config.RANDOM_STATE
+        )
+        scoring = ["recall", "precision", "f1"]
 
-def feature_target_split(csv_path):
-    data = pd.read_csv(csv_path)
-    x = data.drop(config.TARGET, axis=1)
-    y = data[config.TARGET]
-    return x,y
+        transform = build_pipeline()
+        pipeline = Pipeline([
+            ("transformer", transform),
+            ("estimator", model)
+        ])
 
+        start = datetime.now()
+        cv_results = cross_validate(
+            pipeline, x, y, scoring=scoring, cv=cv, n_jobs=-1
+        )
+        end = datetime.now()
 
-def evaluate_model(model, x, y, name: str | None = None):
-    y_predict = model.predict(x)
-    precision, recall, fscore, _ = precision_recall_fscore_support(
-        y, y_predict, average="binary"
-    )
+        metrics = {}
+        cv_params = {
+            "model_type": type(model).__name__,
+            "cv_splits": 10,
+            "shuffle": True,
+            "random_state": config.RANDOM_STATE,
+            "cv_duration": str(end - start)
+        }
 
-    metrics = {
-        make_label("Precision", name): round(precision, 4),
-        make_label("Recall", name): round(recall, 4),
-        make_label("F1 score", name): round(fscore, 4),
-    }
-    return metrics
+        for metric in scoring:
+            metrics[f"cv_{metric}_mean"] = round(
+                cv_results[f"test_{metric}"].mean(), 4)
+            metrics[f"cv_{metric}_std"] = round(
+                cv_results[f"test_{metric}"].std(), 4)
 
-
-# Train a model and return train/validation metrics
-def train_and_validate(model, x_train, y_train, cv=5):
-    model.fit(x_train, y_train)
-
-    # Training metrics
-    y_predict = model.predict(x_train)
-    precision, recall, fscore, _ = precision_recall_fscore_support(
-        y_train, y_predict, average="binary"
-    )
-
-    # Validation metrics
-    scoring = ["precision", "recall", "f1"]
-    scores = cross_validate(
-        model, x_train, y_train, scoring=scoring, cv=cv
-    )
-
-    return pd.Series({
-        "Train Recall": recall,
-        "Val Recall": scores["test_recall"].mean(),
-        "Train Precision": precision,
-        "Val Precision": scores["test_precision"].mean(),
-        "Train FScore": fscore,
-        "Val FScore": scores["test_f1"].mean(),
-    })
+        mlflow.log_metrics(metrics)
+        mlflow.log_params(cv_params)
+        mlflow.end_run()
+        return metrics
 
 
 # Plot side-by-side train/validation metrics in a bar chart
