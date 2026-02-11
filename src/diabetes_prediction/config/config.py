@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from sklearn.naive_bayes import GaussianNB
 
 # Global config
 RANDOM_STATE = 147
@@ -26,9 +25,6 @@ TARGET = "diabetes"
 NUMERICAL_FEATURES = ["age", "bmi", "HbA1c_level", "blood_glucose_level"]
 CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 BINARY_FEATURES = ["hypertension", "heart_disease"]
-
-# Training config
-BASELINE_MODEL = GaussianNB()
 
 # Prediction config (first data point in test set)
 TEST_INSTANCE = {
