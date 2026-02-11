@@ -59,15 +59,16 @@ def fix_label_noise(data: pd.DataFrame, target_col: str) -> pd.DataFrame:
     return df_clean
 
 
-def evaluate_model(model, run_name) -> dict[str, Any]:
+def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.set_tag("run_id", run.info.run_id)
 
+        if not model_name:
+            model_name = type(model).__name__
         x, y = get_train_data()
         cv = StratifiedKFold(
             n_splits=10, shuffle=True,
-            random_state=config.RANDOM_STATE
-        )
+            random_state=config.RANDOM_STATE)
         scoring = ["recall", "precision", "f1"]
 
         transform = build_pipeline()
@@ -78,13 +79,12 @@ def evaluate_model(model, run_name) -> dict[str, Any]:
 
         start = datetime.now()
         cv_results = cross_validate(
-            pipeline, x, y, scoring=scoring, cv=cv, n_jobs=-1
-        )
+            pipeline, x, y, scoring=scoring, cv=cv, n_jobs=-1)
         end = datetime.now()
 
         metrics = {}
         cv_params = {
-            "model_type": type(model).__name__,
+            "model_type": model_name,
             "cv_splits": 10,
             "shuffle": True,
             "random_state": config.RANDOM_STATE,
