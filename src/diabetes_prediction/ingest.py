@@ -38,11 +38,8 @@ def fix_label_conflicts(df: pd.DataFrame) -> pd.DataFrame:
 
 def ingest(raw_path, to_dir):
     mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
-    mlflow.set_experiment("Data Ingestion (final)")
-    mlflow.set_experiment_tag(
-        "reason",
-        "First ingestion experiment didn't take care of label noise."
-    )
+    mlflow.set_experiment("Data Ingestion")
+
     df = pd.read_csv(raw_path)
     df = fix_duplicates(df)
     df = fix_label_conflicts(df)
@@ -68,6 +65,24 @@ def ingest(raw_path, to_dir):
         metrics["train_size"] = len(df_train)
         metrics["val_size"] = len(df_val)
         metrics["test_size"] = len(df_test)
+
+        y_full = df[config.TARGET]
+        y_train = df_train[config.TARGET]
+        y_val = df_val[config.TARGET]
+        y_test = df_test[config.TARGET]
+
+        pos_full = y_full.value_counts(normalize=True)[1]
+        pos_train = y_train.value_counts(normalize=True)[1]
+        pos_val = y_val.value_counts(normalize=True)[1]
+        pos_test = y_test.value_counts(normalize=True)[1]
+
+        metrics["positive_ratio_full"] = round(float(pos_full), 6)
+        metrics["positive_ratio_train"] = round(float(pos_train), 6)
+        metrics["positive_ratio_val"] = round(float(pos_val), 6)
+        metrics["positive_ratio_test"] = round(float(pos_test), 6)
+
+        metrics["positive_count_train"] = y_train.value_counts()[1]
+        metrics["negative_count_train"] = y_train.value_counts()[0]
 
         df_train.to_csv(to_dir / config.TRAIN_FILE, header=True, index=False)
         df_val.to_csv(to_dir / config.VAL_FILE, header=True, index=False)
