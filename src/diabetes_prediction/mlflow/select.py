@@ -1,0 +1,168 @@
+import mlflow
+import numpy as np
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import precision_recall_curve
+from sklearn.pipeline import Pipeline
+
+from ..config import config
+from ..pipeline import build_pipeline
+from ..utils import get_data
+
+
+def analyze_thresholds_triage(name, model, x, y):
+    # Model evaluation on validation set
+    y_scores = model.predict_proba(x)[:, 1]
+    precisions, recalls, thresholds = precision_recall_curve(y, y_scores)
+
+    # Based on our business requirements for triage model :
+    # Recall >= 0.96, Precision >= 0.25
+    valid_idx = np.where(
+        (recalls >= config.MIN_RECALL) &
+        (precisions >= config.MIN_PRECISION)
+    )[0]  # This returns a one-element tuple of indices
+
+    best_idx = -1
+    if len(valid_idx) > 0:
+        best_idx = valid_idx[-1]
+
+    recall = round(recalls[best_idx], 4)
+    precision = round(precisions[best_idx], 4)
+    threshold = round(thresholds[best_idx], 4)
+
+    print(f"\n{name} scores (adjusted) :")
+    print(f"Recall = {recall}")
+    print(f"Precision = {precision}")
+    print(f"Threshold = {threshold}")
+
+    return precision, recall, threshold
+
+
+def analyze_thresholds_balanced(name, model, x, y):
+    # Model evaluation on validation set
+    y_scores = model.predict_proba(x)[:, 1]
+    precisions, recalls, thresholds = precision_recall_curve(y, y_scores)
+
+    # Discard last precision/recall item that doesn't have a threshold
+    precisions = precisions[:-1]
+    recalls = recalls[:-1]
+
+    f1 = np.where(
+        (precisions + recalls) == 0,
+        0,
+        2 * precisions * recalls / (precisions + recalls)
+    )
+    max_f1_idx = f1.argmax()
+
+    max_f1 = round(f1[max_f1_idx], 4)
+    threshold = round(thresholds[max_f1_idx], 4)
+
+    print(f"\n{name} model :")
+    print(f"Max F1 = {max_f1}")
+    print(f"Threshold = {threshold}")
+
+    return max_f1, threshold
+
+
+def get_boosting_model():
+    # Copied from MLflow experiment
+    params = {
+        "max_depth": 5, "max_features": 0.8,
+        "max_iter": 100, "validation_fraction": 0.15,
+        "class_weight": "balanced", "random_state": config.RANDOM_STATE
+    }
+    model = HistGradientBoostingClassifier().set_params(**params)
+    transform = build_pipeline()
+    pipeline = Pipeline([
+        ("transform", transform),
+        ("estimator", model)
+    ])
+
+    x, y = get_data("train")
+    pipeline.fit(x, y)
+    return pipeline
+
+
+def get_logistic_model():
+    # Copied from MLflow experiment
+    params = {
+        "l1_ratio": 0.2, "solver": "saga", "C": 5.0,
+        "max_iter": 1000, "class_weight": "balanced",
+        "random_state": config.RANDOM_STATE
+    }
+    model = LogisticRegression().set_params(**params)
+    transform = build_pipeline()
+    pipeline = Pipeline([
+        ("transform", transform),
+        ("estimator", model)
+    ])
+
+    x, y = get_data("train")
+    pipeline.fit(x, y)
+    return pipeline
+
+
+def log_triage_run(x, y):
+    with mlflow.start_run(run_name="Triage") as run:
+        mlflow.set_tag("run_id", run.info.run_id)
+
+        model = get_boosting_model()
+        precision, recall, threshold = analyze_thresholds_triage(
+            "Hist-GB", model, x, y
+        )
+        params = {
+            "model1_type": type(model.named_steps["estimator"]).__name__,
+            "model1_recall": recall,
+            "model1_precision": precision,
+            "model1_threshold": threshold
+        }
+
+        model = get_logistic_model()
+        precision, recall, threshold = analyze_thresholds_triage(
+            "LR", model, x, y
+        )
+        params["model2_type"] = type(model.named_steps["estimator"]).__name__
+        params["model2_recall"] = recall
+        params["model2_precision"] = precision
+        params["model2_threshold"] = threshold
+
+        mlflow.log_params(params)
+        mlflow.end_run()
+
+
+def log_balanced_run(x, y):
+    with mlflow.start_run(run_name="Balanced") as run:
+        mlflow.set_tag("run_id", run.info.run_id)
+
+        model = get_boosting_model()
+        f1, threshold = analyze_thresholds_balanced(
+            "Hist-GB", model, x, y
+        )
+        params = {
+            "model1_type": type(model.named_steps["estimator"]).__name__,
+            "model1_f1": f1,
+            "model1_threshold": threshold
+        }
+
+        model = get_logistic_model()
+        f1, threshold = analyze_thresholds_balanced(
+            "LR", model, x, y
+        )
+        params["model2_type"] = type(model.named_steps["estimator"]).__name__
+        params["model2_f1"] = f1
+        params["model2_threshold"] = threshold
+
+        mlflow.log_params(params)
+        mlflow.end_run()
+
+
+def analyze_thresholds():
+    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(experiment_name="Model Selection")
+    x_val, y_val = get_data("validation")
+    log_triage_run(x_val, y_val)
+    log_balanced_run(x_val, y_val)
+
+
+if __name__ == "__main__":
+    analyze_thresholds()

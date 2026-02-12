@@ -26,6 +26,11 @@ NUMERICAL_FEATURES = ["age", "bmi", "HbA1c_level", "blood_glucose_level"]
 CATEGORICAL_FEATURES = ["gender", "smoking_history"]
 BINARY_FEATURES = ["hypertension", "heart_disease"]
 
+# Model selection config
+MIN_RECALL = 0.96
+MIN_PRECISION = 0.25
+MIN_F1_SCORE = 0.68
+
 # Prediction config (first data point in test set)
 TEST_INSTANCE = {
     "gender": "Male",
