@@ -3,11 +3,12 @@ import json
 from pathlib import Path
 
 import joblib
+from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import make_pipeline
 
 from .config import config
 from .pipeline import pipeline
-from .utils import feature_target_split, evaluate_model
+from .utils import get_data, evaluate_model
 
 
 def save_artifacts(model, metrics):
@@ -23,11 +24,11 @@ def save_artifacts(model, metrics):
         json.dump(metrics, file)
 
 
-def train(data_path):
-    x_train, y_train = feature_target_split(data_path)
+def train():
+    x_train, y_train = get_data("train")
     full_pipeline = make_pipeline(
         pipeline,
-        config.BASELINE_MODEL
+        GaussianNB()
     )
 
     full_pipeline.fit(x_train, y_train)
@@ -37,15 +38,5 @@ def train(data_path):
     save_artifacts(full_pipeline, metrics)
 
 
-def main():
-    data_path = Path(config.DATA_PATH) / "prepared" / config.TRAIN_FILE
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(
-            "Train dataset not found. Please run ingest.py before training."
-        )
-
-    train(data_path)
-
-
 if __name__ == "__main__":
-    main()
+    train()

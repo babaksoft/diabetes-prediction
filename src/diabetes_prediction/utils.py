@@ -18,16 +18,26 @@ from .config import config
 from .pipeline import build_pipeline
 
 
-def get_train_data():
-    train_path = Path(config.DATA_PATH) / "prepared" / config.TRAIN_FILE
-    if not os.path.exists(train_path):
-        raise FileNotFoundError(
-            "Train dataset not found. Please run ingest.py before training.")
+def get_data(split_name: str = "train"):
+    files = {
+        "train": config.TRAIN_FILE,
+        "validation": config.VAL_FILE,
+        "test": config.TEST_FILE
+    }
+    file = "train.csv"
+    name = split_name.lower()
+    if name in files:
+        file = files[name]
 
-    df = pd.read_csv(train_path)
-    x_train = df.drop(config.TARGET, axis=1)
-    y_train = df[config.TARGET]
-    return x_train, y_train
+    path = Path(config.DATA_PATH) / "prepared" / file
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            "Dataset not found. Please run ingest.py first.")
+
+    df = pd.read_csv(path)
+    x = df.drop(config.TARGET, axis=1)
+    y = df[config.TARGET]
+    return x, y
 
 
 def fix_label_noise(data: pd.DataFrame, target_col: str) -> pd.DataFrame:
@@ -65,7 +75,7 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
 
         if not model_name:
             model_name = type(model).__name__
-        x, y = get_train_data()
+        x, y = get_data()
         cv = StratifiedKFold(
             n_splits=10, shuffle=True,
             random_state=config.RANDOM_STATE)

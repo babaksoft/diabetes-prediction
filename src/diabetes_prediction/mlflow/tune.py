@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 
 from ..config import config
 from ..pipeline import build_pipeline
-from ..utils import get_train_data
+from ..utils import get_data
 
 
 def tune_model(name, model, x, y, param_grid):
@@ -61,7 +61,7 @@ def tune_hyperparams():
 
     mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
     mlflow.set_experiment(experiment_name="Hyperparameter Tuning")
-    x_train, y_train = get_train_data()
+    x_train, y_train = get_data()
 
     ## Tune first model shortlisted for tuning (Hist-GB)
     hgb_clf = HistGradientBoostingClassifier(

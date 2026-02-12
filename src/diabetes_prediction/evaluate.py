@@ -5,7 +5,7 @@ from pathlib import Path
 import joblib
 
 from .config import config
-from .utils import feature_target_split, evaluate_model, \
+from .utils import get_data, evaluate_model, \
     plot_confusion_matrix, plot_roc_curve, plot_pr_curve
 
 
@@ -17,8 +17,8 @@ def save_metrics(metrics):
         json.dump(metrics, file)
 
 
-def evaluate(model_path, data_path):
-    x_test, y_test = feature_target_split(data_path)
+def evaluate(model_path):
+    x_test, y_test = get_data("test")
     pipeline = joblib.load(model_path)
     metrics = evaluate_model(
         pipeline, x_test, y_test, "test"
@@ -41,7 +41,7 @@ def main():
             "Trained model not found. Please run train.py before evaluating."
         )
 
-    evaluate(model_path, data_path)
+    evaluate(model_path)
 
 
 if __name__ == "__main__":
