@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.pipeline import Pipeline
 
@@ -8,6 +9,9 @@ from .utils import get_data, save_model
 
 def train():
     x_train, y_train = get_data("train")
+    x_val, y_val = get_data("validation")
+    x = pd.concat([x_train, x_val], axis=0)
+    y = pd.concat([y_train, y_val], axis=0)
     hgb_clf = HistGradientBoostingClassifier(
         class_weight="balanced",
         max_depth=5,
@@ -21,9 +25,10 @@ def train():
         ("transformer", transformer),
         ("estimator", hgb_clf)
     ])
-    pipeline.fit(x_train, y_train)
-    save_model(pipeline)
+    pipeline.fit(x, y)
+    save_model(pipeline, "HGBClassifier", x)
 
 
 if __name__ == "__main__":
     train()
+    print("[INFO] Model successfully registered in MLflow Model Registry.")

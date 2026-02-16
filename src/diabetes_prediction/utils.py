@@ -133,7 +133,16 @@ def get_metrics(model, x, y, threshold, prefix=None):
     }
 
 
-def save_model(model):
+def save_model(model, model_name, x):
+    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    signature = infer_signature(x, model.predict(x))
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        registered_model_name=model_name,
+        name="model",
+        signature=signature
+    )
+
     if not os.path.exists(config.MODEL_PATH):
         os.mkdir(config.MODEL_PATH)
     path = Path(config.MODEL_PATH) / "hgb_pipeline.joblib"
