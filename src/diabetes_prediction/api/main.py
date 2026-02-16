@@ -6,12 +6,14 @@ import numpy as np
 from fastapi import FastAPI
 import uvicorn
 
-from diabetes import Diabetes
+from ..config import config
+from ..utils import predict_with_threshold
+from .diabetes import Diabetes
 
 
 def load_model():
     curr_dir = Path(__file__).resolve().parent
-    path = curr_dir / "model.joblib"
+    path = curr_dir / "hgb_pipeline.joblib"
     if not os.path.exists(path):
         raise FileNotFoundError("Model file not found.")
     return joblib.load(path)
@@ -31,9 +33,12 @@ async  def index():
 
 
 @app.post("/predict")
-async def predict(diabetes: Diabetes):
+async def predict(diabetes: Diabetes, mode: str = "triage"):
+    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
+        else config.BALANCED_THRESHOLD
     data = diabetes.as_dataframe()
-    prediction = model.predict(data)
+    prediction = predict_with_threshold(
+        model, data, threshold)
     output = np.where(prediction==1, "Diabetes", "No Diabetes").tolist()
     return { "prediction": output[0] }
 

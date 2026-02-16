@@ -4,6 +4,7 @@ from api_client import post_data
 
 @st.cache_data()
 def get_prediction(
+        mode: str,
         gender: str,
         age: int,
         hypertension: str,
@@ -13,7 +14,8 @@ def get_prediction(
         mean_glucose: float,
         glucose: float
 ):
-    url = "http://api:8000/predict"
+    # url = "http://api:8000/predict"  # Uncomment for Dockerized inference
+    url = f"http://localhost:8000/predict?mode={mode}"
     diabetes = {
         "Gender": gender,
         "Age": age,
@@ -42,6 +44,8 @@ def main():
     """
 
     st.markdown(title_div, unsafe_allow_html = True)
+    st.text("Triage : Catches more true diabetics, Balanced : More accurate diabetic warnings")
+    mode = st.selectbox("Model :", ("Triage", "Balanced"))
     gender = st.selectbox("Gender :", ("Male", "Female", "Other"))
     age = st.number_input("Age :", 1, 80)
     hypertension = st.selectbox("History of hypertension?", ("No", "Yes"))
@@ -56,7 +60,7 @@ def main():
     glucose = st.number_input("Blood sugar :", 80, 300)
 
     if st.button("Predict"):
-        result = get_prediction(
+        result = get_prediction(str(mode).lower(),
             gender, age, hypertension, heart_disease,
             smoking, bmi, mean_glucose, glucose
         )
