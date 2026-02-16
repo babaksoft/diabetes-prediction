@@ -120,15 +120,16 @@ def predict_with_threshold(model, x, threshold):
     return np.array(probabilities > threshold, dtype=np.int8)
 
 
-def get_metrics(model, x, y, threshold):
+def get_metrics(model, x, y, threshold, prefix=None):
+    prefix = f"{prefix}_" if prefix is not None else ""
     y_predict = predict_with_threshold(model, x, threshold)
     precision, recall, fscore, _ = precision_recall_fscore_support(
         y, y_predict, average="binary"
     )
     return {
-        "Precision": precision,
-        "Recall": recall,
-        "F1": fscore
+        f"{prefix}precision": round(precision, 4),
+        f"{prefix}recall": round(recall, 4),
+        f"{prefix}f1": round(fscore, 4)
     }
 
 
