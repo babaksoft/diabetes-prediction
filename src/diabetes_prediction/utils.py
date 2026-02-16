@@ -195,7 +195,7 @@ def plot_roc_curve(model, x, y):
     roc_display = RocCurveDisplay.from_predictions(y, y_scores)
 
     roc_display.plot()
-    path = config.METRICS_PATH / f"roc_curve.png"
+    path = config.METRICS_PATH / "roc_curve.png"
     plt.savefig(path)
     plt.close()
 
@@ -207,6 +207,6 @@ def plot_pr_curve(model, x, y):
     pr_display = PrecisionRecallDisplay(precision=precision, recall=recall)
 
     pr_display.plot()
-    path = config.METRICS_PATH / f"pr_curve.png"
+    path = config.METRICS_PATH / "pr_curve.png"
     plt.savefig(path)
     plt.close()
