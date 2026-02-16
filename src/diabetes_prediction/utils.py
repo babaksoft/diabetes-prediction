@@ -162,6 +162,12 @@ def load_model(model_name="HGBClassifier", stage="None"):
     return model
 
 
+def load_local_model():
+    path = Path(config.MODEL_PATH) / "hgb_pipeline.joblib"
+    model = joblib.load(path)
+    return model
+
+
 # Plot confusion matrix using a default matplotlib colormap
 def plot_confusion_matrix(
         model, x, y, mode="triage", normalize=None):
