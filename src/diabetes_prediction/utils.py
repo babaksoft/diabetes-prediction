@@ -190,27 +190,23 @@ def plot_confusion_matrix(
 
 
 # Plot ROC curve for given model and train/val/test data
-def plot_roc_curve(model, x, y, mode="triage"):
-    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
-        else config.BALANCED_THRESHOLD
-    y_predict = predict_with_threshold(model, x, threshold)
-    roc_display = RocCurveDisplay.from_predictions(y, y_predict)
+def plot_roc_curve(model, x, y):
+    y_scores = model.predict_proba(x)[:, 1]
+    roc_display = RocCurveDisplay.from_predictions(y, y_scores)
 
     roc_display.plot()
-    path = config.METRICS_PATH / f"roc_curve_{mode}.png"
+    path = config.METRICS_PATH / f"roc_curve.png"
     plt.savefig(path)
     plt.close()
 
 
 # Plot Precision-Recall (PR) curve
-def plot_pr_curve(model, x, y, mode="triage"):
-    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
-        else config.BALANCED_THRESHOLD
-    y_predict = predict_with_threshold(model, x, threshold)
-    precision, recall, _ = precision_recall_curve(y, y_predict)
+def plot_pr_curve(model, x, y):
+    y_scores = model.predict_proba(x)[:, 1]
+    precision, recall, _ = precision_recall_curve(y, y_scores)
     pr_display = PrecisionRecallDisplay(precision=precision, recall=recall)
 
     pr_display.plot()
-    path = config.METRICS_PATH / f"pr_curve_{mode}.png"
+    path = config.METRICS_PATH / f"pr_curve.png"
     plt.savefig(path)
     plt.close()

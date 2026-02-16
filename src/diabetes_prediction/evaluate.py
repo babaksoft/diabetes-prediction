@@ -19,12 +19,8 @@ def save_metrics(metrics, model_type=None):
 def save_artifacts(model, x, y):
     plot_confusion_matrix(model, x, y, mode="triage")
     plot_confusion_matrix(model, x, y, mode="balanced")
-
-    plot_roc_curve(model, x, y, mode="triage")
-    plot_roc_curve(model, x, y, mode="balanced")
-
-    plot_pr_curve(model, x, y, mode="triage")
-    plot_pr_curve(model, x, y, mode="balanced")
+    plot_roc_curve(model, x, y)
+    plot_pr_curve(model, x, y)
 
 
 def evaluate():
