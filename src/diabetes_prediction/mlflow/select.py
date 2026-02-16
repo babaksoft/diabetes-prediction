@@ -118,61 +118,45 @@ def get_logistic_model():
     return pipeline
 
 
+def get_triage_params(name, alias, pipeline, x, y):
+    precision, recall, threshold, supported = analyze_thresholds_triage(
+        name, pipeline, x, y
+    )
+    if supported:
+        params = {
+            f"{alias}_type": type(pipeline.named_steps["estimator"]).__name__,
+            f"{alias}_recall": recall,
+            f"{alias}_precision": precision,
+            f"{alias}_threshold": threshold
+        }
+    else:
+        params = {
+            "{alias}_type": type(pipeline.named_steps["estimator"]).__name__,
+            "{alias}_triage_supported": supported
+        }
+
+    return params
+
+
 def log_triage_run(x, y):
     with mlflow.start_run(run_name="Triage") as run:
         mlflow.set_tag("run_id", run.info.run_id)
         params = {}
 
         model = get_baseline_model()
-        precision, recall, threshold, supported = analyze_thresholds_triage(
-            "GNB", model, x, y
+        params.update(
+            get_triage_params("GNB", "baseline", model, x, y)
         )
-        if supported:
-            params.update({
-                "baseline_type": type(model.named_steps["estimator"]).__name__,
-                "baseline_recall": recall,
-                "baseline_precision": precision,
-                "baseline_threshold": threshold
-            })
-        else:
-            params.update({
-                "baseline_type": type(model.named_steps["estimator"]).__name__,
-                "baseline_triage_supported": supported
-            })
 
         model = get_boosting_model()
-        precision, recall, threshold, supported = analyze_thresholds_triage(
-            "Hist-GB", model, x, y
+        params.update(
+            get_triage_params("Hist-GB", "model1", model, x, y)
         )
-        if supported:
-            params.update({
-                "model1_type": type(model.named_steps["estimator"]).__name__,
-                "model1_recall": recall,
-                "model1_precision": precision,
-                "model1_threshold": threshold
-            })
-        else:
-            params.update({
-                "model1_type": type(model.named_steps["estimator"]).__name__,
-                "model1_triage_supported": supported
-            })
 
         model = get_logistic_model()
-        precision, recall, threshold, supported = analyze_thresholds_triage(
-            "LR", model, x, y
+        params.update(
+            get_triage_params("LR", "model2", model, x, y)
         )
-        if supported:
-            params.update({
-                "model2_type": type(model.named_steps["estimator"]).__name__,
-                "model2_recall": recall,
-                "model2_precision": precision,
-                "model2_threshold": threshold
-            })
-        else:
-            params.update({
-                "model2_type": type(model.named_steps["estimator"]).__name__,
-                "model2_triage_supported": supported
-            })
 
         mlflow.log_params(params)
         mlflow.end_run()

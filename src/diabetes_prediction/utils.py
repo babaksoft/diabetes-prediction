@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import joblib
 import matplotlib.pyplot as plt
 import mlflow
 import numpy as np
@@ -10,7 +11,8 @@ import pandas as pd
 from mlflow.models import infer_signature
 from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import (
+    precision_recall_curve, precision_recall_fscore_support)
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.pipeline import Pipeline
 
@@ -111,6 +113,40 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
         mlflow.log_params(cv_params)
         mlflow.end_run()
         return metrics
+
+
+def predict_with_threshold(model, x, threshold):
+    probabilities = model.predict_proba(x)[:, 1]
+    return np.array(probabilities > threshold, dtype=np.int8)
+
+
+def get_metrics(model, x, y, threshold):
+    y_predict = predict_with_threshold(model, x, threshold)
+    precision, recall, fscore, _ = precision_recall_fscore_support(
+        y, y_predict, average="binary"
+    )
+    return {
+        "Precision": precision,
+        "Recall": recall,
+        "F1": fscore
+    }
+
+
+def save_model(model):
+    if not os.path.exists(config.MODEL_PATH):
+        os.mkdir(config.MODEL_PATH)
+    path = Path(config.MODEL_PATH) / "hgb_pipeline.joblib"
+    joblib.dump(model, path)
+
+
+def load_model():
+    path = Path(config.MODEL_PATH) / "hgb_pipeline.joblib"
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            "Trained model not found. Please run train.py before predicting."
+        )
+    pipeline = joblib.load(path)
+    return pipeline
 
 
 # Plot side-by-side train/validation metrics in a bar chart

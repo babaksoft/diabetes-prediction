@@ -31,14 +31,16 @@ MIN_RECALL = 0.96
 MIN_PRECISION = 0.25
 MIN_F1_SCORE = 0.68
 
-# Prediction config (first data point in test set)
+# Inference config (first data point in test set)
+TRIAGE_THRESHOLD = 0.3631
+BALANCED_THRESHOLD = 0.8871
 TEST_INSTANCE = {
-    "gender": "Male",
-    "age": 24.0,
+    "gender": "Female",
+    "age": 29.0,
     "hypertension": 0,
     "heart_disease": 0,
-    "smoking_history": "No Info",
-    "bmi": 28.07,
-    "HbA1c_level": 6.2,
-    "blood_glucose_level": 155,
+    "smoking_history": "never",
+    "bmi": 24.89,
+    "HbA1c_level": 5.8,
+    "blood_glucose_level": 130
 }

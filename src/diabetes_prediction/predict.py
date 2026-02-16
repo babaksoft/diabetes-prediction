@@ -1,23 +1,20 @@
 import os
 from pathlib import Path
 
-import joblib
 import numpy as np
 import pandas as pd
 
 from .config import config
+from .utils import predict_with_threshold, load_model
 
 
 def make_prediction(input_data):
-    model_path = Path(config.MODEL_PATH) / "model.joblib"
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(
-            "Trained model not found. Please run train.py before predicting."
-        )
-    model = joblib.load(model_path)
+    pipeline = load_model()
     data = pd.DataFrame(input_data)
 
-    prediction = model.predict(data)
+    prediction = predict_with_threshold(
+        pipeline, data, config.TRIAGE_THRESHOLD
+    )
     output = np.where(prediction==1, "Yes", "No").tolist()
     results = {"prediction": output}
     return results
@@ -25,7 +22,8 @@ def make_prediction(input_data):
 
 def predict(data_path):
     df_test = pd.read_csv(data_path)
-    input_data = df_test[0:1]
+    input_data = df_test.drop(config.TARGET, axis=1).iloc[:1]
+    print(input_data)
     return make_prediction(input_data)
 
 

@@ -2,31 +2,32 @@ import os
 import json
 from pathlib import Path
 
-import joblib
-
 from .config import config
-from .utils import get_data, evaluate_model, \
-    plot_confusion_matrix, plot_roc_curve, plot_pr_curve
+from .utils import get_data, get_metrics, load_model
 
 
-def save_metrics(metrics):
+def save_metrics(metrics, path):
     if not os.path.exists(config.METRICS_PATH):
         os.mkdir(config.METRICS_PATH)
-    path = Path(config.METRICS_PATH) / "test_metrics.json"
     with open(path, "w") as file:
         json.dump(metrics, file)
 
 
-def evaluate(model_path):
+def evaluate():
     x_test, y_test = get_data("test")
-    pipeline = joblib.load(model_path)
-    metrics = evaluate_model(
-        pipeline, x_test, y_test, "test"
+    pipeline = load_model()
+
+    path = Path(config.METRICS_PATH) / "metrics_triage.json"
+    metrics = get_metrics(
+        pipeline, x_test, y_test, config.TRIAGE_THRESHOLD
     )
-    save_metrics(metrics)
-    plot_confusion_matrix(pipeline, x_test, y_test)
-    plot_roc_curve(pipeline, x_test, y_test)
-    plot_pr_curve(pipeline, x_test, y_test)
+    save_metrics(metrics, path)
+
+    path = Path(config.METRICS_PATH) / "metrics_balanced.json"
+    metrics = get_metrics(
+        pipeline, x_test, y_test, config.BALANCED_THRESHOLD
+    )
+    save_metrics(metrics, path)
 
 
 def main():
@@ -35,13 +36,8 @@ def main():
         raise FileNotFoundError(
             "Test dataset not found. Please run ingest.py before evaluating."
         )
-    model_path = Path(config.MODEL_PATH) / "model.joblib"
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(
-            "Trained model not found. Please run train.py before evaluating."
-        )
 
-    evaluate(model_path)
+    evaluate()
 
 
 if __name__ == "__main__":

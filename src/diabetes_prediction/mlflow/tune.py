@@ -53,7 +53,7 @@ def tune_model(name, model, x, y, param_grid):
     print("-" * (len(type(model).__name__) + 2))
     print(f"Best params :\n{search.best_params_}\n")
     print(f"PR-AUC : {round(search.best_score_, 4)}")
-    print(f"Tuning time :", str(end-start))
+    print("Tuning time :", str(end-start))
 
 
 def tune_hyperparams():
