@@ -4,30 +4,43 @@ from pathlib import Path
 
 from .config import config
 from .utils import get_data, get_metrics, load_model
+from .utils import plot_confusion_matrix, plot_roc_curve, plot_pr_curve
 
-
-def save_metrics(metrics, path):
+def save_metrics(metrics, model_type=None):
     if not os.path.exists(config.METRICS_PATH):
         os.mkdir(config.METRICS_PATH)
+
+    suffix = f"_{model_type}" if model_type is not None else ""
+    path = Path(config.METRICS_PATH) / f"metrics{suffix}.json"
     with open(path, "w") as file:
         json.dump(metrics, file)
+
+
+def save_artifacts(model, x, y):
+    plot_confusion_matrix(model, x, y, mode="triage")
+    plot_confusion_matrix(model, x, y, mode="balanced")
+
+    plot_roc_curve(model, x, y, mode="triage")
+    plot_roc_curve(model, x, y, mode="balanced")
+
+    plot_pr_curve(model, x, y, mode="triage")
+    plot_pr_curve(model, x, y, mode="balanced")
 
 
 def evaluate():
     x_test, y_test = get_data("test")
     pipeline = load_model()
 
-    path = Path(config.METRICS_PATH) / "metrics_triage.json"
     metrics = get_metrics(
         pipeline, x_test, y_test, config.TRIAGE_THRESHOLD
     )
-    save_metrics(metrics, path)
+    save_metrics(metrics, model_type="triage")
 
-    path = Path(config.METRICS_PATH) / "metrics_balanced.json"
     metrics = get_metrics(
         pipeline, x_test, y_test, config.BALANCED_THRESHOLD
     )
-    save_metrics(metrics, path)
+    save_metrics(metrics, model_type="balanced")
+    save_artifacts(pipeline, x_test, y_test)
 
 
 def main():
@@ -38,6 +51,7 @@ def main():
         )
 
     evaluate()
+    print("[INFO] Metrics successfully saved in /metrics folder.")
 
 
 if __name__ == "__main__":

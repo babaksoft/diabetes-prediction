@@ -133,7 +133,7 @@ def get_metrics(model, x, y, threshold, prefix=None):
     }
 
 
-def save_model(model, model_name, x):
+def save_model(model, x, model_name="HGBClassifier"):
     mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
     signature = infer_signature(x, model.predict(x))
     mlflow.sklearn.log_model(
@@ -149,84 +149,62 @@ def save_model(model, model_name, x):
     joblib.dump(model, path)
 
 
-def load_model():
-    path = Path(config.MODEL_PATH) / "hgb_pipeline.joblib"
-    if not os.path.exists(path):
-        raise FileNotFoundError(
-            "Trained model not found. Please run train.py before predicting."
-        )
-    pipeline = joblib.load(path)
-    return pipeline
+def load_model(model_name="HGBClassifier", stage="None"):
+    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    mlflow_path = Path(config.MODEL_PATH) / "mlflow"
+    if not os.path.exists(mlflow_path):
+        os.mkdir(mlflow_path)
 
-
-# Plot side-by-side train/validation metrics in a bar chart
-def plot_metrics(train, val, metric, names):
-    fig, ax = plt.subplots()
-    bar_width = 0.35
-    index = np.arange(len(names))
-
-    ax.bar(index, train, bar_width, label="train")
-    ax.bar(index + bar_width, val, bar_width, label="validation")
-
-    ax.set_xlabel("Trained Model")
-    ax.set_ylabel(metric)
-    ax.set_title(f"Train vs. Validation {metric}")
-    ax.set_xticks(index + bar_width / 2)
-    ax.set_xticklabels(names)
-
-    ax.legend(loc="best")
-    fig.tight_layout()
-
-    path = config.METRICS_PATH / f"Train_Val_{metric}.png"
-    plt.savefig(path)
-    plt.close()
+    model = mlflow.sklearn.load_model(
+        model_uri=f"models:/{model_name}/{stage}",
+        dst_path=mlflow_path
+    )
+    return model
 
 
 # Plot confusion matrix using a default matplotlib colormap
-def plot_confusion_matrix(model, x, y, cmap="summer", normalize=None):
-    y_predict = model.predict(x)
-    cm = confusion_matrix(y, y_predict, labels=model.classes_, normalize=normalize)
-    cm_display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+def plot_confusion_matrix(
+        model, x, y, mode="triage", normalize=None):
+    cmap = "summer"
+    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
+        else config.BALANCED_THRESHOLD
+    y_predict = predict_with_threshold(model, x, threshold)
+    estimator = model.named_steps["estimator"]
+    cm = confusion_matrix(
+        y, y_predict, labels=estimator.classes_, normalize=normalize
+    )
+    cm_display = ConfusionMatrixDisplay(
+        confusion_matrix=cm, display_labels=estimator.classes_
+    )
 
     cm_display.plot(cmap=cmap)
-    path = config.METRICS_PATH / "CM.png"
+    path = config.METRICS_PATH / f"confusion_matrix_{mode}.png"
     plt.savefig(path)
     plt.close()
 
 
 # Plot ROC curve for given model and train/val/test data
-def plot_roc_curve(model, x, y):
-    roc_display = RocCurveDisplay.from_estimator(model, x, y)
+def plot_roc_curve(model, x, y, mode="triage"):
+    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
+        else config.BALANCED_THRESHOLD
+    y_predict = predict_with_threshold(model, x, threshold)
+    roc_display = RocCurveDisplay.from_predictions(y, y_predict)
 
     roc_display.plot()
-    path = config.METRICS_PATH / "ROC.png"
+    path = config.METRICS_PATH / f"roc_curve_{mode}.png"
     plt.savefig(path)
     plt.close()
 
 
 # Plot Precision-Recall (PR) curve
-def plot_pr_curve(model, x, y):
-    predictions = model.predict(x)
-    precision, recall, _ = precision_recall_curve(y, predictions)
+def plot_pr_curve(model, x, y, mode="triage"):
+    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
+        else config.BALANCED_THRESHOLD
+    y_predict = predict_with_threshold(model, x, threshold)
+    precision, recall, _ = precision_recall_curve(y, y_predict)
     pr_display = PrecisionRecallDisplay(precision=precision, recall=recall)
 
     pr_display.plot()
-    path = config.METRICS_PATH / "PR.png"
+    path = config.METRICS_PATH / f"pr_curve_{mode}.png"
     plt.savefig(path)
     plt.close()
-
-
-# Log model attributes in current MLFlow experiment
-def mlflow_register(
-        model, model_name: str, x_train, run_name: str, metrics: dict[str, float]
-):
-    with mlflow.start_run(run_name=run_name) as run:
-        mlflow.set_tag("project", config.PROJECT_NAME)
-        mlflow.set_tag("run_id", run.info.run_id)
-        mlflow.log_params(model.get_params())
-        mlflow.log_metrics(metrics)
-
-        signature = infer_signature(x_train, model.predict(x_train))
-        mlflow.sklearn.log_model(model, name=model_name, signature=signature)
-
-        mlflow.end_run()

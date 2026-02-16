@@ -1,0 +1,6 @@
+outs:
+- md5: 482369e56905773e1317512868593cea.dir
+  size: 316141
+  nfiles: 6
+  hash: md5
+  path: mlflow
