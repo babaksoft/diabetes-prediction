@@ -14,8 +14,8 @@ def get_prediction(
         mean_glucose: float,
         glucose: float
 ):
-    # url = "http://api:8000/predict"  # Uncomment for Dockerized inference
-    url = f"http://localhost:8000/predict?mode={mode}"
+    url = f"http://api:8000/predict?mode={mode}"
+    # url = f"http://localhost:8000/predict?mode={mode}"  # Uncomment for local inference
     diabetes = {
         "Gender": gender,
         "Age": age,

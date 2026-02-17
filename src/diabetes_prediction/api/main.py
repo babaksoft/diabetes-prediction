@@ -6,9 +6,10 @@ import numpy as np
 from fastapi import FastAPI
 import uvicorn
 
-from ..config import config
-from ..utils import predict_with_threshold
-from .diabetes import Diabetes
+from diabetes import Diabetes
+
+TRIAGE_THRESHOLD = 0.3631
+BALANCED_THRESHOLD = 0.8871
 
 
 def load_model():
@@ -22,6 +23,12 @@ def load_model():
 app = FastAPI()
 model = load_model()
 
+
+def predict_with_threshold(x, threshold):
+    probabilities = model.predict_proba(x)[:, 1]
+    return np.array(probabilities > threshold, dtype=np.int8)
+
+
 @app.get("/")
 async  def index():
     info = {
@@ -34,11 +41,9 @@ async  def index():
 
 @app.post("/predict")
 async def predict(diabetes: Diabetes, mode: str = "triage"):
-    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
-        else config.BALANCED_THRESHOLD
+    threshold = TRIAGE_THRESHOLD if mode == "triage" else BALANCED_THRESHOLD
     data = diabetes.as_dataframe()
-    prediction = predict_with_threshold(
-        model, data, threshold)
+    prediction = predict_with_threshold(data, threshold)
     output = np.where(prediction==1, "Diabetes", "No Diabetes").tolist()
     return { "prediction": output[0] }
 
