@@ -202,6 +202,24 @@ Final performance on the held-out test set:
 All results generalize consistently from validation to test,
 indicating stable model behavior.
 
+### Confusion Matrix
+
+**Triage mode**
+
+![Confusion Matrix - Triage](./src/diabetes_prediction/metrics/confusion_matrix_triage.png)
+
+**Balanced mode**
+
+![Confusion Matrix - Balanced](./src/diabetes_prediction/metrics/confusion_matrix_balanced.png)
+
+### PR Curve
+
+![PR Curve](./src/diabetes_prediction/metrics/pr_curve.png)
+
+### ROC Curve
+
+![ROC Curve](./src/diabetes_prediction/metrics/roc_curve.png)
+
 ## Experiment Tracking & Reproducibility
 
 - All experiments tracked in MLflow
