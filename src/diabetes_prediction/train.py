@@ -26,7 +26,7 @@ def train():
         ("estimator", hgb_clf)
     ])
     pipeline.fit(x, y)
-    save_model(pipeline, "HGBClassifier", x)
+    save_model(pipeline, x, "HGBClassifier")
 
 
 if __name__ == "__main__":
