@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 # Global config
 RANDOM_STATE = 147
 PROJECT_NAME = "diabetes-prediction"
@@ -17,8 +16,8 @@ RAW_FILE = "diabetes_prediction.csv"
 TRAIN_FILE = "train.csv"
 VAL_FILE = "validation.csv"
 TEST_FILE = "test.csv"
-TRAIN_TEST_SPLIT = 0.2 # Used during train/test split
-TEST_VAL_SPLIT = 0.5 # Used during test/val split
+TRAIN_TEST_SPLIT = 0.2  # Used during train/test split
+TEST_VAL_SPLIT = 0.5  # Used during test/val split
 
 # Preprocessing pipeline config
 TARGET = "diabetes"
@@ -42,5 +41,5 @@ TEST_INSTANCE = {
     "smoking_history": "never",
     "bmi": 24.89,
     "HbA1c_level": 5.8,
-    "blood_glucose_level": 130
+    "blood_glucose_level": 130,
 }

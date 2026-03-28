@@ -18,13 +18,10 @@ def train():
         max_features=0.8,
         max_iter=100,
         validation_fraction=0.15,
-        random_state=config.RANDOM_STATE
+        random_state=config.RANDOM_STATE,
     )
     transformer = build_pipeline()
-    pipeline = Pipeline([
-        ("transformer", transformer),
-        ("estimator", hgb_clf)
-    ])
+    pipeline = Pipeline([("transformer", transformer), ("estimator", hgb_clf)])
     pipeline.fit(x, y)
     save_model(pipeline, x, "HGBClassifier")
 

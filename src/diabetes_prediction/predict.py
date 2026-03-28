@@ -11,12 +11,11 @@ from .utils import predict_with_threshold, load_model, load_local_model
 def get_prediction_results(model, input_data, mode="triage"):
     data = pd.DataFrame(input_data)
 
-    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
-        else config.BALANCED_THRESHOLD
-    prediction = predict_with_threshold(
-        model, data, threshold
+    threshold = (
+        config.TRIAGE_THRESHOLD if mode == "triage" else config.BALANCED_THRESHOLD
     )
-    output = np.where(prediction==1, "Yes", "No").tolist()
+    prediction = predict_with_threshold(model, data, threshold)
+    output = np.where(prediction == 1, "Yes", "No").tolist()
     results = {"predictions": output}
     return results
 
@@ -50,5 +49,5 @@ def main():
     print(prediction)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

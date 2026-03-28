@@ -11,16 +11,16 @@ from ..utils import get_data, get_metrics
 def get_model():
     # Copied from MLflow experiment
     params = {
-        "max_depth": 5, "max_features": 0.8,
-        "max_iter": 100, "validation_fraction": 0.15,
-        "class_weight": "balanced", "random_state": config.RANDOM_STATE
+        "max_depth": 5,
+        "max_features": 0.8,
+        "max_iter": 100,
+        "validation_fraction": 0.15,
+        "class_weight": "balanced",
+        "random_state": config.RANDOM_STATE,
     }
     model = HistGradientBoostingClassifier().set_params(**params)
     transformer = build_pipeline()
-    pipeline = Pipeline([
-        ("transformer", transformer),
-        ("estimator", model)
-    ])
+    pipeline = Pipeline([("transformer", transformer), ("estimator", model)])
     return pipeline
 
 
@@ -41,16 +41,18 @@ def evaluate():
 
         x_test, y_test = get_data("test")
         metrics["triage_threshold"] = config.TRIAGE_THRESHOLD
-        metrics.update(get_metrics(
-            pipeline, x_test, y_test, config.TRIAGE_THRESHOLD,
-            prefix="triage"
-        ))
+        metrics.update(
+            get_metrics(
+                pipeline, x_test, y_test, config.TRIAGE_THRESHOLD, prefix="triage"
+            )
+        )
 
         metrics["balanced_threshold"] = config.BALANCED_THRESHOLD
-        metrics.update(get_metrics(
-            pipeline, x_test, y_test, config.BALANCED_THRESHOLD,
-            prefix="balanced"
-        ))
+        metrics.update(
+            get_metrics(
+                pipeline, x_test, y_test, config.BALANCED_THRESHOLD, prefix="balanced"
+            )
+        )
 
         mlflow.log_metrics(metrics)
         mlflow.end_run()

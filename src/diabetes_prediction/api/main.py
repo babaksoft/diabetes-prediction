@@ -30,11 +30,11 @@ def predict_with_threshold(x, threshold):
 
 
 @app.get("/")
-async  def index():
+async def index():
     info = {
         "name": "Diabetes Prediction App (v0.1)",
         "description": "Predicts the onset of diabetes. For usage hints and examples, "
-                       "please consult API documentation at '/docs'."
+        "please consult API documentation at '/docs'.",
     }
     return info
 
@@ -44,8 +44,8 @@ async def predict(diabetes: Diabetes, mode: str = "triage"):
     threshold = TRIAGE_THRESHOLD if mode == "triage" else BALANCED_THRESHOLD
     data = diabetes.as_dataframe()
     prediction = predict_with_threshold(data, threshold)
-    output = np.where(prediction==1, "Diabetes", "No Diabetes").tolist()
-    return { "prediction": output[0] }
+    output = np.where(prediction == 1, "Diabetes", "No Diabetes").tolist()
+    return {"prediction": output[0]}
 
 
 if __name__ == "__main__":

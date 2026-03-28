@@ -6,6 +6,7 @@ from .config import config
 from .utils import get_data, get_metrics, load_model
 from .utils import plot_confusion_matrix, plot_roc_curve, plot_pr_curve
 
+
 def save_metrics(metrics, model_type=None):
     if not os.path.exists(config.METRICS_PATH):
         os.mkdir(config.METRICS_PATH)
@@ -27,14 +28,10 @@ def evaluate():
     x_test, y_test = get_data("test")
     pipeline = load_model()
 
-    metrics = get_metrics(
-        pipeline, x_test, y_test, config.TRIAGE_THRESHOLD
-    )
+    metrics = get_metrics(pipeline, x_test, y_test, config.TRIAGE_THRESHOLD)
     save_metrics(metrics, model_type="triage")
 
-    metrics = get_metrics(
-        pipeline, x_test, y_test, config.BALANCED_THRESHOLD
-    )
+    metrics = get_metrics(pipeline, x_test, y_test, config.BALANCED_THRESHOLD)
     save_metrics(metrics, model_type="balanced")
     save_artifacts(pipeline, x_test, y_test)
 

@@ -11,8 +11,7 @@ import pandas as pd
 from mlflow.models import infer_signature
 from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.metrics import (
-    precision_recall_curve, precision_recall_fscore_support)
+from sklearn.metrics import precision_recall_curve, precision_recall_fscore_support
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.pipeline import Pipeline
 
@@ -24,7 +23,7 @@ def get_data(split_name: str = "train"):
     files = {
         "train": config.TRAIN_FILE,
         "validation": config.VAL_FILE,
-        "test": config.TEST_FILE
+        "test": config.TEST_FILE,
     }
     file = "train.csv"
     name = split_name.lower()
@@ -33,8 +32,7 @@ def get_data(split_name: str = "train"):
 
     path = Path(config.DATA_PATH) / "prepared" / file
     if not os.path.exists(path):
-        raise FileNotFoundError(
-            "Dataset not found. Please run ingest.py first.")
+        raise FileNotFoundError("Dataset not found. Please run ingest.py first.")
 
     df = pd.read_csv(path)
     x = df.drop(config.TARGET, axis=1)
@@ -79,19 +77,15 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
             model_name = type(model).__name__
         x, y = get_data()
         cv = StratifiedKFold(
-            n_splits=10, shuffle=True,
-            random_state=config.RANDOM_STATE)
+            n_splits=10, shuffle=True, random_state=config.RANDOM_STATE
+        )
         scoring = ["recall", "precision", "f1"]
 
         transform = build_pipeline()
-        pipeline = Pipeline([
-            ("transformer", transform),
-            ("estimator", model)
-        ])
+        pipeline = Pipeline([("transformer", transform), ("estimator", model)])
 
         start = datetime.now()
-        cv_results = cross_validate(
-            pipeline, x, y, scoring=scoring, cv=cv, n_jobs=-1)
+        cv_results = cross_validate(pipeline, x, y, scoring=scoring, cv=cv, n_jobs=-1)
         end = datetime.now()
 
         metrics = {}
@@ -100,14 +94,12 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
             "cv_splits": 10,
             "shuffle": True,
             "random_state": config.RANDOM_STATE,
-            "cv_duration": str(end - start)
+            "cv_duration": str(end - start),
         }
 
         for metric in scoring:
-            metrics[f"cv_{metric}_mean"] = round(
-                cv_results[f"test_{metric}"].mean(), 4)
-            metrics[f"cv_{metric}_std"] = round(
-                cv_results[f"test_{metric}"].std(), 4)
+            metrics[f"cv_{metric}_mean"] = round(cv_results[f"test_{metric}"].mean(), 4)
+            metrics[f"cv_{metric}_std"] = round(cv_results[f"test_{metric}"].std(), 4)
 
         mlflow.log_metrics(metrics)
         mlflow.log_params(cv_params)
@@ -129,7 +121,7 @@ def get_metrics(model, x, y, threshold, prefix=None):
     return {
         f"{prefix}precision": round(precision, 4),
         f"{prefix}recall": round(recall, 4),
-        f"{prefix}f1": round(fscore, 4)
+        f"{prefix}f1": round(fscore, 4),
     }
 
 
@@ -140,7 +132,7 @@ def save_model(model, x, model_name="HGBClassifier"):
         sk_model=model,
         registered_model_name=model_name,
         name="model",
-        signature=signature
+        signature=signature,
     )
 
     if not os.path.exists(config.MODEL_PATH):
@@ -156,8 +148,7 @@ def load_model(model_name="HGBClassifier", stage="None"):
         os.mkdir(mlflow_path)
 
     model = mlflow.sklearn.load_model(
-        model_uri=f"models:/{model_name}/{stage}",
-        dst_path=mlflow_path
+        model_uri=f"models:/{model_name}/{stage}", dst_path=mlflow_path
     )
     return model
 
@@ -169,16 +160,14 @@ def load_local_model():
 
 
 # Plot confusion matrix using a default matplotlib colormap
-def plot_confusion_matrix(
-        model, x, y, mode="triage", normalize=None):
+def plot_confusion_matrix(model, x, y, mode="triage", normalize=None):
     cmap = "summer"
-    threshold = config.TRIAGE_THRESHOLD if mode == "triage"\
-        else config.BALANCED_THRESHOLD
+    threshold = (
+        config.TRIAGE_THRESHOLD if mode == "triage" else config.BALANCED_THRESHOLD
+    )
     y_predict = predict_with_threshold(model, x, threshold)
     estimator = model.named_steps["estimator"]
-    cm = confusion_matrix(
-        y, y_predict, labels=estimator.classes_, normalize=normalize
-    )
+    cm = confusion_matrix(y, y_predict, labels=estimator.classes_, normalize=normalize)
     cm_display = ConfusionMatrixDisplay(
         confusion_matrix=cm, display_labels=estimator.classes_
     )

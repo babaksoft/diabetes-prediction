@@ -18,7 +18,9 @@ def main():
     metrics = evaluate_baseline()
     print("\nBaseline model metrics - Summary :\n")
     print(f"Recall = {metrics['cv_recall_mean']} +/- {metrics['cv_recall_std']}")
-    print(f"Precision = {metrics['cv_precision_mean']} +/- {metrics['cv_precision_std']}")
+    print(
+        f"Precision = {metrics['cv_precision_mean']} +/- {metrics['cv_precision_std']}"
+    )
     print(f"F1 Score = {metrics['cv_f1_mean']} +/- {metrics['cv_f1_std']}")
 
 

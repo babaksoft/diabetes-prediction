@@ -6,12 +6,9 @@ from requests.exceptions import HTTPError, RequestException
 
 
 def get_result(
-        response: Response | None = None,
-        error: Exception | None = None) -> dict[str, Any]:
-    result: dict[str, Any] = {
-        "data": None,
-        "message": None
-    }
+    response: Response | None = None, error: Exception | None = None
+) -> dict[str, Any]:
+    result: dict[str, Any] = {"data": None, "message": None}
 
     if not response:
         result["message"] = f"An unexpected error occurred : {error}"

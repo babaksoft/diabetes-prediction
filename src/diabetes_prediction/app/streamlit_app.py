@@ -2,17 +2,18 @@ import streamlit as st
 
 from api_client import post_data
 
+
 @st.cache_data()
 def get_prediction(
-        mode: str,
-        gender: str,
-        age: int,
-        hypertension: str,
-        heart_disease: str,
-        smoking: str,
-        bmi: float,
-        mean_glucose: float,
-        glucose: float
+    mode: str,
+    gender: str,
+    age: int,
+    hypertension: str,
+    heart_disease: str,
+    smoking: str,
+    bmi: float,
+    mean_glucose: float,
+    glucose: float,
 ):
     url = f"http://api:8000/predict?mode={mode}"
     # url = f"http://localhost:8000/predict?mode={mode}"  # Uncomment for local inference
@@ -24,7 +25,7 @@ def get_prediction(
         "SmokingHistory": smoking,
         "BMI": bmi,
         "MeanGlucoseLevel": mean_glucose,
-        "GlucoseLevel": glucose
+        "GlucoseLevel": glucose,
     }
     result = post_data(url, diabetes)
     if not result["data"]:
@@ -43,26 +44,34 @@ def main():
     </div>
     """
 
-    st.markdown(title_div, unsafe_allow_html = True)
-    st.text("Triage : Catches more true diabetics, Balanced : More accurate diabetic warnings")
+    st.markdown(title_div, unsafe_allow_html=True)
+    st.text(
+        "Triage : Catches more true diabetics, Balanced : More accurate diabetic warnings"
+    )
     mode = st.selectbox("Model :", ("Triage", "Balanced"))
     gender = st.selectbox("Gender :", ("Male", "Female", "Other"))
     age = st.number_input("Age :", 1, 80)
     hypertension = st.selectbox("History of hypertension?", ("No", "Yes"))
     heart_disease = st.selectbox("History of heart disease?", ("No", "Yes"))
-    smoking = st.selectbox("Smoking status :", (
-        "not current", "former", "No Info", "current", "never", "ever"
-    ))
-    bmi = st.number_input("Body Mass Index (BMI) :", 10.0, 90.0)
-    mean_glucose = st.number_input(
-        "Average Blood sugar (past 2-3 months) :", 3.0, 9.0
+    smoking = st.selectbox(
+        "Smoking status :",
+        ("not current", "former", "No Info", "current", "never", "ever"),
     )
+    bmi = st.number_input("Body Mass Index (BMI) :", 10.0, 90.0)
+    mean_glucose = st.number_input("Average Blood sugar (past 2-3 months) :", 3.0, 9.0)
     glucose = st.number_input("Blood sugar :", 80, 300)
 
     if st.button("Predict"):
-        result = get_prediction(str(mode).lower(),
-            gender, age, hypertension, heart_disease,
-            smoking, bmi, mean_glucose, glucose
+        result = get_prediction(
+            str(mode).lower(),
+            gender,
+            age,
+            hypertension,
+            heart_disease,
+            smoking,
+            bmi,
+            mean_glucose,
+            glucose,
         )
 
         pos_msg = "Congratulations! You do NOT have diabetes."
@@ -75,5 +84,5 @@ def main():
             st.error(result)
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
     main()

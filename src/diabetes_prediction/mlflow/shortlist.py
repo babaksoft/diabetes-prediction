@@ -20,12 +20,11 @@ def train_candidate_models():
         LogisticRegression(class_weight="balanced", random_state=rs),
         make_pipeline(
             Nystroem(random_state=rs),
-            LinearSVC(class_weight="balanced", random_state=rs)),
-        RandomForestClassifier(
-            class_weight="balanced", random_state=rs),
-        HistGradientBoostingClassifier(
-            class_weight="balanced", random_state=rs),
-        KNeighborsClassifier()
+            LinearSVC(class_weight="balanced", random_state=rs),
+        ),
+        RandomForestClassifier(class_weight="balanced", random_state=rs),
+        HistGradientBoostingClassifier(class_weight="balanced", random_state=rs),
+        KNeighborsClassifier(),
     ]
 
     mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
@@ -42,8 +41,8 @@ def train_candidate_models():
     df_metrics.to_csv(path, index=False, header=True)
 
     with mlflow.start_run(
-        run_name="Performance",
-        experiment_id=experiment.experiment_id) as run:
+        run_name="Performance", experiment_id=experiment.experiment_id
+    ) as run:
         mlflow.set_tag("run_id", run.info.run_id)
         mlflow.log_artifact(path)
         mlflow.end_run()

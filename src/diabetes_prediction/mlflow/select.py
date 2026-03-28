@@ -19,9 +19,10 @@ def analyze_thresholds_triage(name, model, x, y):
     # Based on our business requirements for triage model :
     # Recall >= 0.96, Precision >= 0.25
     valid_idx = np.where(
-        (recalls >= config.MIN_RECALL) &
-        (precisions >= config.MIN_PRECISION)
-    )[0]  # This returns a one-element tuple of indices
+        (recalls >= config.MIN_RECALL) & (precisions >= config.MIN_PRECISION)
+    )[
+        0
+    ]  # This returns a one-element tuple of indices
 
     best_idx = -1
     if len(valid_idx) > 0:
@@ -54,7 +55,7 @@ def analyze_thresholds_balanced(name, model, x, y):
     f1 = np.where(
         (precisions + recalls) == 0,
         0,
-        2 * precisions * recalls / (precisions + recalls)
+        2 * precisions * recalls / (precisions + recalls),
     )
     max_f1_idx = f1.argmax()
 
@@ -70,10 +71,7 @@ def analyze_thresholds_balanced(name, model, x, y):
 
 def get_baseline_model():
     transform = build_pipeline()
-    pipeline = Pipeline([
-        ("transformer", transform),
-        ("estimator", GaussianNB())
-    ])
+    pipeline = Pipeline([("transformer", transform), ("estimator", GaussianNB())])
 
     x, y = get_data("train")
     pipeline.fit(x, y)
@@ -83,16 +81,16 @@ def get_baseline_model():
 def get_boosting_model():
     # Copied from MLflow experiment
     params = {
-        "max_depth": 5, "max_features": 0.8,
-        "max_iter": 100, "validation_fraction": 0.15,
-        "class_weight": "balanced", "random_state": config.RANDOM_STATE
+        "max_depth": 5,
+        "max_features": 0.8,
+        "max_iter": 100,
+        "validation_fraction": 0.15,
+        "class_weight": "balanced",
+        "random_state": config.RANDOM_STATE,
     }
     model = HistGradientBoostingClassifier().set_params(**params)
     transform = build_pipeline()
-    pipeline = Pipeline([
-        ("transform", transform),
-        ("estimator", model)
-    ])
+    pipeline = Pipeline([("transform", transform), ("estimator", model)])
 
     x, y = get_data("train")
     pipeline.fit(x, y)
@@ -102,16 +100,16 @@ def get_boosting_model():
 def get_logistic_model():
     # Copied from MLflow experiment
     params = {
-        "l1_ratio": 0.2, "solver": "saga", "C": 5.0,
-        "max_iter": 1000, "class_weight": "balanced",
-        "random_state": config.RANDOM_STATE
+        "l1_ratio": 0.2,
+        "solver": "saga",
+        "C": 5.0,
+        "max_iter": 1000,
+        "class_weight": "balanced",
+        "random_state": config.RANDOM_STATE,
     }
     model = LogisticRegression().set_params(**params)
     transform = build_pipeline()
-    pipeline = Pipeline([
-        ("transform", transform),
-        ("estimator", model)
-    ])
+    pipeline = Pipeline([("transform", transform), ("estimator", model)])
 
     x, y = get_data("train")
     pipeline.fit(x, y)
@@ -127,12 +125,12 @@ def get_triage_params(name, alias, pipeline, x, y):
             f"{alias}_type": type(pipeline.named_steps["estimator"]).__name__,
             f"{alias}_recall": recall,
             f"{alias}_precision": precision,
-            f"{alias}_threshold": threshold
+            f"{alias}_threshold": threshold,
         }
     else:
         params = {
             "{alias}_type": type(pipeline.named_steps["estimator"]).__name__,
-            "{alias}_triage_supported": supported
+            "{alias}_triage_supported": supported,
         }
 
     return params
@@ -144,19 +142,13 @@ def log_triage_run(x, y):
         params = {}
 
         model = get_baseline_model()
-        params.update(
-            get_triage_params("GNB", "baseline", model, x, y)
-        )
+        params.update(get_triage_params("GNB", "baseline", model, x, y))
 
         model = get_boosting_model()
-        params.update(
-            get_triage_params("Hist-GB", "model1", model, x, y)
-        )
+        params.update(get_triage_params("Hist-GB", "model1", model, x, y))
 
         model = get_logistic_model()
-        params.update(
-            get_triage_params("LR", "model2", model, x, y)
-        )
+        params.update(get_triage_params("LR", "model2", model, x, y))
 
         mlflow.log_params(params)
         mlflow.end_run()
@@ -168,34 +160,34 @@ def log_balanced_run(x, y):
         params = {}
 
         model = get_baseline_model()
-        f1, threshold = analyze_thresholds_balanced(
-            "GNB", model, x, y
+        f1, threshold = analyze_thresholds_balanced("GNB", model, x, y)
+        params.update(
+            {
+                "baseline_type": type(model.named_steps["estimator"]).__name__,
+                "baseline_f1": f1,
+                "baseline_threshold": threshold,
+            }
         )
-        params.update({
-            "baseline_type": type(model.named_steps["estimator"]).__name__,
-            "baseline_f1": f1,
-            "baseline_threshold": threshold
-        })
 
         model = get_boosting_model()
-        f1, threshold = analyze_thresholds_balanced(
-            "Hist-GB", model, x, y
+        f1, threshold = analyze_thresholds_balanced("Hist-GB", model, x, y)
+        params.update(
+            {
+                "model1_type": type(model.named_steps["estimator"]).__name__,
+                "model1_f1": f1,
+                "model1_threshold": threshold,
+            }
         )
-        params.update({
-            "model1_type": type(model.named_steps["estimator"]).__name__,
-            "model1_f1": f1,
-            "model1_threshold": threshold
-        })
 
         model = get_logistic_model()
-        f1, threshold = analyze_thresholds_balanced(
-            "LR", model, x, y
+        f1, threshold = analyze_thresholds_balanced("LR", model, x, y)
+        params.update(
+            {
+                "model2_type": type(model.named_steps["estimator"]).__name__,
+                "model2_f1": f1,
+                "model2_threshold": threshold,
+            }
         )
-        params.update({
-            "model2_type": type(model.named_steps["estimator"]).__name__,
-            "model2_f1": f1,
-            "model2_threshold": threshold
-        })
 
         mlflow.log_params(params)
         mlflow.end_run()
