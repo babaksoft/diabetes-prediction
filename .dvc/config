@@ -1,5 +1,7 @@
 [core]
-    remote = local_dvc
+    remote = aws_storage
     analytics = false
 ['remote "local_dvc"']
     url = ../../_local_dvc_
+['remote "aws_storage"']
+    url = s3://babaksoft/ml-portfolio/diabetes-prediction/dvc_sync
