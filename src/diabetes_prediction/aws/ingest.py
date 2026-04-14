@@ -1,7 +1,10 @@
 import os
+import json
 from pathlib import Path
+from typing import Any
 
 from dotenv import find_dotenv, load_dotenv
+import pandas as pd
 import boto3
 from botocore.exceptions import ClientError
 import sagemaker
@@ -34,6 +37,20 @@ def check_ingest_status() -> bool:
         return False
 
 
+def get_metadata(data_dir: str | Path) -> dict[str, Any]:
+    if isinstance(data_dir, str):
+        data_dir = Path(data_dir)
+    df_train = pd.read_csv(data_dir / "train.csv")
+    df_valid = pd.read_csv(data_dir / "validation.csv")
+    df_test = pd.read_csv(data_dir / "test.csv")
+    return {
+        "dataset_version": "v1",
+        "train_size": len(df_train),
+        "validation_size": len(df_valid),
+        "test_size": len(df_test),
+    }
+
+
 def ingest():
     if check_ingest_status():
         print("[INFO] Data is already ingested.")
@@ -57,10 +74,20 @@ def ingest():
         key_prefix=f"{root_key}/test",
     )
 
+    metadata = get_metadata(root_dir)
+    with open("./artifacts/metadata.json", "wt") as file:
+        json.dump(metadata, file)
+    meta_path = sm_session.upload_data(
+        path="./artifacts/metadata.json",
+        bucket=sm_session.default_bucket(),
+        key_prefix=root_key,
+    )
+
     print("[INFO] Data successfully ingested.")
-    print(f"train : {train_path}")
-    print(f"validation : {valid_path}")
-    print(f"test : {test_path}")
+    print(f"Train : {train_path}")
+    print(f"Validation : {valid_path}")
+    print(f"Test : {test_path}")
+    print(f"Metadata : {meta_path}")
 
 
 if __name__ == "__main__":
