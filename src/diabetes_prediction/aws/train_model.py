@@ -44,8 +44,4 @@ if __name__ == "__main__":
         TrainingJobName=estimator.latest_training_job.name
     )["ModelArtifacts"]["S3ModelArtifacts"]
     print("Model artifact :", artifact)
-
-    # Not sure if this is needed (uncomment if necessary)
-    hyperparameters = {k.replace("-", "_"): v for k, v in hyperparameters.items()}
-    # save_artifacts(hyperparameters, artifact)
     print("\n[INFO] Model training successfully completed.")
