@@ -20,7 +20,11 @@ def deploy():
         role=role,
         framework_version=FRAMEWORK_VERSION,
     )
+
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    endpoint_name = f"diabetes-predictor-{timestamp}"
     predictor = model.deploy(
+        endpoint_name=endpoint_name,
         instance_type="ml.t2.large",
         initial_instance_count=1,
     )

@@ -40,10 +40,11 @@ def predict_fn(input_data, model_bundle):
 
         probabilities = model.predict_proba(input_data)[:, 1]
         predictions = (probabilities >= threshold).astype(int)
+        rounded_probs = [round(float(prob), 6) for prob in probabilities.ravel()]
         return {
             "mode": mode,
-            "predictions": predictions,
-            "probabilities": probabilities,
+            "predictions": predictions.ravel().tolist(),
+            "probabilities": rounded_probs,
             "threshold": threshold,
         }
     except KeyError:
@@ -54,3 +55,29 @@ def predict_fn(input_data, model_bundle):
 
 def output_fn(predictions, accept):
     return json.dumps(predictions, sort_keys=False, indent=2), accept
+
+
+def smoke_test():
+    df = pd.read_csv(
+        "../data/prepared/test.csv"
+    )  # Must be run as script from aws folder
+    data = df.drop("diabetes", axis=1).iloc[25:30, :]
+    data["mode"] = "triage"
+    bundle = {
+        "model": joblib.load("../model/hgb_pipeline.joblib"),
+        "thresholds": {"triage": 0.3631, "balanced": 0.8871},
+    }
+    output = predict_fn(data, bundle)
+    preds = output["predictions"]
+    trues = df["diabetes"].iloc[25:30].values
+    result = []
+    for pred, true in zip(preds, trues):
+        truth = "Diabetes" if true == 1 else "No Diabetes"
+        prediction = "Diabetes" if pred == 1 else "No Diabetes"
+        verdict = "Correct" if prediction == truth else "Incorrect"
+        result.append(f"{prediction}\t({verdict})")
+    print("\n".join(result))
+
+
+if __name__ == "__main__":
+    smoke_test()
