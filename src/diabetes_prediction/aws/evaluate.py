@@ -83,17 +83,21 @@ def plot_pr_curve(model, x, y, out_dir: Path):
 
 
 def get_model_artifacts():
-    model_path = Path("/opt/ml/processing/model") / "model.tar.gz"
-    print("Extracting model from path :", model_path)
-    with tarfile.open(model_path) as tar:
-        tar.extractall(path=".")
+    model_dir = Path("/opt/ml/processing/model")
+    extract_dir = model_dir / "extracted"
+    os.makedirs(extract_dir, exist_ok=True)
+
+    print("Extracting model from path :", model_dir / "model.tar.gz")
+    with tarfile.open(model_dir / "model.tar.gz") as tar:
+        tar.extractall(path=extract_dir)
+    print("Extracted model contents :", os.listdir(extract_dir))
 
     print("Loading model...")
-    model = joblib.load("model.joblib")
+    model = joblib.load(extract_dir / "model.joblib")
 
-    with open("thresholds.json") as file:
+    with open(extract_dir / "thresholds.json") as file:
         thresholds_ = json.load(file)
-    with open("metadata.json") as file:
+    with open(extract_dir / "metadata.json") as file:
         metadata_ = json.load(file)
     return model, thresholds_, metadata_
 

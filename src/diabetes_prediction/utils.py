@@ -109,7 +109,7 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
 
 def predict_with_threshold(model, x, threshold):
     probabilities = model.predict_proba(x)[:, 1]
-    return np.array(probabilities > threshold, dtype=np.int8)
+    return np.array(probabilities >= threshold, dtype=np.int8)
 
 
 def get_metrics(model, x, y, threshold, prefix=None):
