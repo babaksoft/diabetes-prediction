@@ -5,7 +5,7 @@ import tarfile
 
 # As matplotlib may NOT be included in processing container, install if necessary
 try:
-    import matplotlib
+    import matplotlib.pyplot as plt
 except ImportError:
     import subprocess
     import sys
@@ -14,11 +14,11 @@ except ImportError:
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "matplotlib==3.10.8"]
     )
+    import matplotlib.pyplot as plt
 
 import joblib
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, PrecisionRecallDisplay
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import RocCurveDisplay, precision_recall_fscore_support
@@ -35,10 +35,10 @@ def get_metrics(model, x, y, threshold):
         y, y_predict, average="binary"
     )
     return {
-        f"precision": round(precision, 4),
-        f"recall": round(recall, 4),
-        f"f1_score": round(fscore, 4),
-        f"threshold": round(threshold, 4),
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "f1_score": round(fscore, 4),
+        "threshold": round(threshold, 4),
     }
 
 

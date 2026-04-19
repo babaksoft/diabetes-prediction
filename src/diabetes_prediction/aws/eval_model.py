@@ -1,7 +1,5 @@
 import json
 
-import boto3
-import sagemaker
 from sagemaker.processing import ProcessingInput, ProcessingOutput
 from sagemaker.s3 import S3Downloader
 from sagemaker.sklearn.processing import SKLearnProcessor
