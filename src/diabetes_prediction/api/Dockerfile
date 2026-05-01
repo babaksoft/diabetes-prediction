@@ -1,14 +1,14 @@
 # --- Builder Stage ---
-FROM python:3.12.10-slim-bullseye AS builder
+FROM python:3.12.8-slim-bullseye AS builder
 
 WORKDIR /install
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-COPY requirements.txt .
+COPY pyproject.toml constraints.txt ./
 
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install ".[api]"
 
 # --- Final Production Image ---
 FROM python:3.12.10-slim-bullseye

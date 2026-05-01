@@ -1,9 +1,23 @@
+# --- Builder Stage ---
+FROM python:3.12.8-slim-bullseye AS builder
+
+WORKDIR /install
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY pyproject.toml constraints.txt ./
+
+RUN pip install --no-cache-dir --prefix=/install ".[app]"
+
+# --- Final Production Image ---
 FROM python:3.12.10-slim-bullseye
 
 WORKDIR /app
 
-COPY requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY --from=builder /install /usr/local/
+
+ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
 
 COPY . .
 
