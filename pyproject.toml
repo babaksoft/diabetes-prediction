@@ -25,6 +25,7 @@ license-files = ["LICEN[CS]E*"]
 
 dependencies = [
     "boto3",
+    "dvc[s3]",
     "joblib",
     "matplotlib",
     "mlflow",
@@ -44,6 +45,7 @@ build = [
 
 dev = [
     "black",
+    "ipykernel",
     "isort",
     "mypy",
     "pytest",
