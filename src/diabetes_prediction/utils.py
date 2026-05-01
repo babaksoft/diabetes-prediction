@@ -97,8 +97,8 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
         cv_params = {
             "model_type": model_name,
             "cv_splits": 10,
-            "shuffle": True,
-            "random_state": config.RANDOM_STATE,
+            "cv_shuffle": True,
+            "cv_random_state": config.RANDOM_STATE,
             "cv_duration": str(end - start),
         }
 

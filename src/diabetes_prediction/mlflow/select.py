@@ -129,8 +129,8 @@ def get_triage_params(name, alias, pipeline, x, y):
         }
     else:
         params = {
-            "{alias}_type": type(pipeline.named_steps["estimator"]).__name__,
-            "{alias}_triage_supported": supported,
+            f"{alias}_type": type(pipeline.named_steps["estimator"]).__name__,
+            f"{alias}_triage_supported": supported,
         }
 
     return params

@@ -16,7 +16,9 @@ RAW_FILE = "diabetes_prediction.csv"
 TRAIN_FILE = "train.csv"
 VAL_FILE = "validation.csv"
 TEST_FILE = "test.csv"
-TRAIN_TEST_SPLIT = 0.2  # Used during train/test split
+TRAIN_SPLIT = 0.8
+VAL_SPLIT = 0.1
+TEST_SPLIT = 0.1
 TEST_VAL_SPLIT = 0.5  # Used during test/val split
 
 # Preprocessing pipeline config

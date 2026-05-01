@@ -12,7 +12,12 @@ from diabetes_prediction.utils import fix_label_noise
 def fix_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     with mlflow.start_run(run_name="Drop duplicates") as run:
         mlflow.set_tag("run_id", run.info.run_id)
-        metrics = {"dataset_size": len(df), "duplicate_count": df.duplicated().sum()}
+        dup_count = df.duplicated().sum()
+        metrics = {
+            "dataset_size": len(df),
+            "duplicate_count": dup_count,
+            "cleaned_size": len(df) - dup_count,
+        }
         mlflow.log_metrics(metrics)
         mlflow.end_run()
 
@@ -26,6 +31,7 @@ def fix_label_conflicts(df: pd.DataFrame) -> pd.DataFrame:
         metrics = {
             "dataset_size": len(df),
             "noisy_label_count": len(df) - len(df_clean),
+            "cleaned_size": len(df_clean),
         }
         mlflow.log_metrics(metrics)
         mlflow.end_run()
@@ -44,8 +50,9 @@ def ingest(raw_path, to_dir):
     rs = config.RANDOM_STATE
     metrics = {
         "dataset_size": len(df),
-        "train_test_split": config.TRAIN_TEST_SPLIT,
-        "test_val_split": config.TEST_VAL_SPLIT,
+        "train_split": config.TRAIN_SPLIT,
+        "val_split": config.VAL_SPLIT,
+        "test_split": config.TEST_SPLIT,
         "random_state": rs,
     }
 
@@ -53,7 +60,7 @@ def ingest(raw_path, to_dir):
         mlflow.set_tag("run_id", run.info.run_id)
         df_train, df_test = train_test_split(
             df,
-            test_size=config.TRAIN_TEST_SPLIT,
+            train_size=config.TRAIN_SPLIT,
             stratify=df[config.TARGET],
             random_state=rs,
         )
