@@ -1,9 +1,8 @@
 import os
 
-from dotenv import load_dotenv, find_dotenv
 import boto3
 import sagemaker
-
+from dotenv import find_dotenv, load_dotenv
 
 _ = load_dotenv(find_dotenv())
 REGION = os.environ["PROJ_REGION"]

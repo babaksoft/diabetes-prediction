@@ -1,11 +1,12 @@
 import mlflow
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
+from sklearn.ensemble import (HistGradientBoostingClassifier,
+                              RandomForestClassifier)
+from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.kernel_approximation import Nystroem
-from sklearn.svm import LinearSVC
 from sklearn.pipeline import make_pipeline
+from sklearn.svm import LinearSVC
 from tqdm import tqdm
 
 from ..config import config

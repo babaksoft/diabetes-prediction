@@ -1,7 +1,7 @@
+import mlflow
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.pipeline import Pipeline
-import mlflow
 
 from ..config import config
 from ..pipeline import build_pipeline

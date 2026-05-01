@@ -3,10 +3,9 @@ from pathlib import Path
 
 import joblib
 import numpy as np
-from fastapi import FastAPI
 import uvicorn
-
 from diabetes import Diabetes
+from fastapi import FastAPI
 
 TRIAGE_THRESHOLD = 0.3631
 BALANCED_THRESHOLD = 0.8871

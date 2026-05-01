@@ -1,10 +1,10 @@
 from datetime import datetime
 
 import mlflow
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
-from sklearn.pipeline import Pipeline
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.pipeline import Pipeline
 
 from ..config import config
 from ..pipeline import build_pipeline

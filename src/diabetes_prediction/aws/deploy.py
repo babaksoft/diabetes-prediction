@@ -1,8 +1,7 @@
-from datetime import datetime
 import json
+from datetime import datetime
 
 from sagemaker.sklearn.model import SKLearnModel
-
 from utils import get_session_role
 
 FRAMEWORK_VERSION = "1.4-2"

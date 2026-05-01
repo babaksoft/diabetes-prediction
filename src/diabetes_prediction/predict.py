@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from .config import config
-from .utils import predict_with_threshold, load_model, load_local_model
+from .utils import load_local_model, load_model, predict_with_threshold
 
 
 def get_prediction_results(model, input_data, mode="triage"):

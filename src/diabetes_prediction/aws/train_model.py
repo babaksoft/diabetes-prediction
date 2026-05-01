@@ -1,6 +1,5 @@
 import boto3
 from sagemaker.sklearn.estimator import SKLearn
-
 from utils import get_session_role
 
 FRAMEWORK_VERSION = "1.4-2"

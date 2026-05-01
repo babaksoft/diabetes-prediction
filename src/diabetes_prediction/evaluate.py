@@ -1,10 +1,10 @@
-import os
 import json
+import os
 from pathlib import Path
 
 from .config import config
-from .utils import get_data, get_metrics, load_model
-from .utils import plot_confusion_matrix, plot_roc_curve, plot_pr_curve
+from .utils import (get_data, get_metrics, load_model, plot_confusion_matrix,
+                    plot_pr_curve, plot_roc_curve)
 
 
 def save_metrics(metrics, model_type=None):

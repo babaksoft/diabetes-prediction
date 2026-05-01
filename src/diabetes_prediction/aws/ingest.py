@@ -2,12 +2,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
 import boto3
+import pandas as pd
 from botocore.exceptions import ClientError
-
 from utils import get_session_role
-
 
 sm_session, _ = get_session_role()
 

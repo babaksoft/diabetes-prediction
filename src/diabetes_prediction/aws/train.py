@@ -1,17 +1,16 @@
 import argparse
-from datetime import datetime
-import joblib
 import json
 import os
+from datetime import datetime
 
+import joblib
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-
 
 RANDOM_STATE = 147
 NUM_FEATURES = ["age", "bmi", "HbA1c_level", "blood_glucose_level"]

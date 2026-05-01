@@ -1,9 +1,8 @@
 import json
 
 import boto3
-import pandas as pd
-
 import config
+import pandas as pd
 
 sm_runtime = boto3.client("sagemaker-runtime")
 

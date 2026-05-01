@@ -1,7 +1,7 @@
 import json
 import os
-from pathlib import Path
 import tarfile
+from pathlib import Path
 
 # As matplotlib may NOT be included in processing container, install if necessary
 try:
@@ -19,9 +19,10 @@ except ImportError:
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.metrics import precision_recall_curve, PrecisionRecallDisplay
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.metrics import RocCurveDisplay, precision_recall_fscore_support
+from sklearn.metrics import (ConfusionMatrixDisplay, PrecisionRecallDisplay,
+                             RocCurveDisplay, confusion_matrix,
+                             precision_recall_curve,
+                             precision_recall_fscore_support)
 
 
 def predict_with_threshold(model, x, threshold):

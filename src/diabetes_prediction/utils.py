@@ -9,9 +9,10 @@ import mlflow
 import numpy as np
 import pandas as pd
 from mlflow.models import infer_signature
-from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.metrics import precision_recall_curve, precision_recall_fscore_support
+from sklearn.metrics import (ConfusionMatrixDisplay, PrecisionRecallDisplay,
+                             RocCurveDisplay, confusion_matrix,
+                             precision_recall_curve,
+                             precision_recall_fscore_support)
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.pipeline import Pipeline
 

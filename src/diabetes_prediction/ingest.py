@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
+import mlflow
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import mlflow
 
-from .config import config
-from .utils import fix_label_noise
+from diabetes_prediction.config import config
+from diabetes_prediction.utils import fix_label_noise
 
 
 def fix_duplicates(df: pd.DataFrame) -> pd.DataFrame:

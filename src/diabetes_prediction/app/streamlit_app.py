@@ -1,5 +1,4 @@
 import streamlit as st
-
 from api_client import post_data
 
 
