@@ -3,9 +3,9 @@ import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.pipeline import Pipeline
 
-from ..config import config
-from ..pipeline import build_pipeline
-from ..utils import get_data, get_metrics
+from diabetes_prediction.config import config
+from diabetes_prediction.pipeline import build_pipeline
+from diabetes_prediction.utils import get_data, get_metrics
 
 
 def get_model():

@@ -6,9 +6,9 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 
-from ..config import config
-from ..pipeline import build_pipeline
-from ..utils import get_data
+from diabetes_prediction.config import config
+from diabetes_prediction.pipeline import build_pipeline
+from diabetes_prediction.utils import get_data
 
 
 def analyze_thresholds_triage(name, model, x, y):

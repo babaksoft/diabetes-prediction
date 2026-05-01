@@ -2,9 +2,9 @@ import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.pipeline import Pipeline
 
-from .config import config
-from .pipeline import build_pipeline
-from .utils import get_data, save_model
+from diabetes_prediction.config import config
+from diabetes_prediction.pipeline import build_pipeline
+from diabetes_prediction.utils import get_data, save_model
 
 
 def train():

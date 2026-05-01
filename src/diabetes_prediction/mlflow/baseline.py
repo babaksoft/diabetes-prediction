@@ -3,8 +3,8 @@ from typing import Any
 import mlflow
 from sklearn.naive_bayes import GaussianNB
 
-from ..config import config
-from ..utils import evaluate_model
+from diabetes_prediction.config import config
+from diabetes_prediction.utils import evaluate_model
 
 
 def evaluate_baseline() -> dict[str, Any]:

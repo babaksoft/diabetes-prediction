@@ -6,9 +6,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import Pipeline
 
-from ..config import config
-from ..pipeline import build_pipeline
-from ..utils import get_data
+from diabetes_prediction.config import config
+from diabetes_prediction.pipeline import build_pipeline
+from diabetes_prediction.utils import get_data
 
 
 def tune_model(name, model, x, y, param_grid):

@@ -2,9 +2,15 @@ import json
 import os
 from pathlib import Path
 
-from .config import config
-from .utils import (get_data, get_metrics, load_model, plot_confusion_matrix,
-                    plot_pr_curve, plot_roc_curve)
+from diabetes_prediction.config import config
+from diabetes_prediction.utils import (
+    get_data,
+    get_metrics,
+    load_model,
+    plot_confusion_matrix,
+    plot_pr_curve,
+    plot_roc_curve,
+)
 
 
 def save_metrics(metrics, model_type=None):

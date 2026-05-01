@@ -1,7 +1,6 @@
 import mlflow
 import pandas as pd
-from sklearn.ensemble import (HistGradientBoostingClassifier,
-                              RandomForestClassifier)
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.kernel_approximation import Nystroem
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -9,8 +8,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.svm import LinearSVC
 from tqdm import tqdm
 
-from ..config import config
-from ..utils import evaluate_model
+from diabetes_prediction.config import config
+from diabetes_prediction.utils import evaluate_model
 
 
 def train_candidate_models():

@@ -9,15 +9,19 @@ import mlflow
 import numpy as np
 import pandas as pd
 from mlflow.models import infer_signature
-from sklearn.metrics import (ConfusionMatrixDisplay, PrecisionRecallDisplay,
-                             RocCurveDisplay, confusion_matrix,
-                             precision_recall_curve,
-                             precision_recall_fscore_support)
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    PrecisionRecallDisplay,
+    RocCurveDisplay,
+    confusion_matrix,
+    precision_recall_curve,
+    precision_recall_fscore_support,
+)
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.pipeline import Pipeline
 
-from .config import config
-from .pipeline import build_pipeline
+from diabetes_prediction.config import config
+from diabetes_prediction.pipeline import build_pipeline
 
 
 def get_data(split_name: str = "train"):
