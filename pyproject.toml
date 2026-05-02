@@ -1,12 +1,11 @@
 [build-system]
-requires = ["hatchling >= 1.26"]
+requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
 
 [project]
 name = "diabetes-prediction"
 version = "0.1.0"
 description = "An end-to-end ML system for predicting diabetes with strict operation policies"
-readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [
@@ -21,23 +20,25 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-license-files = ["LICEN[CS]E*"]
 
 dependencies = [
-    "boto3",
-    "dvc[s3]",
     "joblib",
-    "matplotlib",
-    "mlflow",
     "numpy",
     "pandas",
-    "python-dotenv",
-    "sagemaker",
     "scikit-learn",
-    "tqdm",
 ]
 
 [project.optional-dependencies]
+train = [
+    "boto3",
+    "dvc[s3]",
+    "matplotlib",
+    "mlflow",
+    "python-dotenv",
+    "sagemaker",
+    "tqdm",
+]
+
 build = [
     "build",
     "hatchling",
@@ -54,10 +55,6 @@ dev = [
 
 api = [
     "fastapi",
-    "joblib",
-    "numpy",
-    "pandas",
-    "scikit-learn",
     "uvicorn",
 ]
 
@@ -74,13 +71,7 @@ Issues = "https://github.com/babaksoft/diabetes-prediction/issues"
 profile = "black"
 
 [tool.hatch.build]
-exclude = [
-    "/.dvc",
-    "**/*.dvc",
-    "**/.gitignore",
-    "/notebooks",
-    "/tests",
-    ".gitignore",
-    ".dvcignore",
-    "requirements.txt"
-]
+sources = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/diabetes_prediction"]

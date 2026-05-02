@@ -1,8 +1,8 @@
-version: "3.9"
-
 services:
   api:
-    build: ./src/diabetes_prediction/api
+    build:
+      context: .
+      dockerfile: src/diabetes_prediction/api/Dockerfile
     container_name: diabetes_api
     restart: always
     ports:
@@ -10,7 +10,9 @@ services:
     networks:
       - diabetes-network
   app:
-    build: ./src/diabetes_prediction/app
+    build:
+      context: .
+      dockerfile: src/diabetes_prediction/app/Dockerfile
     container_name: diabetes_app
     restart: always
     ports:

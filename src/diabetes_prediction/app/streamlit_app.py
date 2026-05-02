@@ -1,5 +1,6 @@
 import streamlit as st
-from api_client import post_data
+
+from diabetes_prediction.app.api_client import post_data
 
 
 @st.cache_data()
