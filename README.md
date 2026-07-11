@@ -1,5 +1,6 @@
 # Diabetes Prediction
 
+
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https://github.com/babaksoft/diabetes-prediction/raw/refs/heads/master/pyproject.toml)
 ![Static Badge](https://img.shields.io/badge/task-classification-orange)
 ![Static Badge](https://img.shields.io/badge/framework-sklearn-orange)
