@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 # Global config
@@ -5,11 +6,12 @@ RANDOM_STATE = 147
 PROJECT_NAME = "diabetes-prediction"
 MLFLOW_TRACKING_URI = "http://localhost:5000/"
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
+LOG_LEVEL = logging.DEBUG
 
 # Path config
-DATA_PATH = PACKAGE_ROOT / "data"
-MODEL_PATH = PACKAGE_ROOT / "model"
-METRICS_PATH = PACKAGE_ROOT / "metrics"
+DATA_DIR = PACKAGE_ROOT / "data"
+MODEL_DIR = PACKAGE_ROOT / "model"
+METRICS_DIR = PACKAGE_ROOT / "metrics"
 
 # Data ingestion config
 RAW_FILE = "diabetes_prediction.csv"
