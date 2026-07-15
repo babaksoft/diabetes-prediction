@@ -1,5 +1,5 @@
 [core]
-    remote = local_dvc
+    remote = aws_storage
     analytics = false
 ['remote "local_dvc"']
     url = ../../_local_dvc_

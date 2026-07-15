@@ -1,126 +1,59 @@
+import logging
 import os
-from pathlib import Path
 
 import mlflow
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
-from diabetes_prediction.config import config
-from diabetes_prediction.utils import fix_label_noise
+from diabetes_prediction.config import settings
+from diabetes_prediction.config.logging import configure_logging
+from diabetes_prediction.utils.ingest import (
+    fix_duplicates,
+    fix_label_conflicts,
+    split_data,
+    track_data_splits,
+    track_duplicates,
+    track_label_conflicts,
+)
 
-
-def fix_duplicates(df: pd.DataFrame) -> pd.DataFrame:
-    with mlflow.start_run(run_name="Drop duplicates") as run:
-        mlflow.set_tag("run_id", run.info.run_id)
-        dup_count = df.duplicated().sum()
-        metrics = {
-            "dataset_size": len(df),
-            "duplicate_count": dup_count,
-            "cleaned_size": len(df) - dup_count,
-        }
-        mlflow.log_metrics(metrics)
-        mlflow.end_run()
-
-        return df.drop_duplicates()
+logger = logging.getLogger(__name__)
 
 
-def fix_label_conflicts(df: pd.DataFrame) -> pd.DataFrame:
-    with mlflow.start_run(run_name="Fix label noise") as run:
-        mlflow.set_tag("run_id", run.info.run_id)
-        df_clean = fix_label_noise(df, config.TARGET)
-        metrics = {
-            "dataset_size": len(df),
-            "noisy_label_count": len(df) - len(df_clean),
-            "cleaned_size": len(df_clean),
-        }
-        mlflow.log_metrics(metrics)
-        mlflow.end_run()
-
-        return df_clean
-
-
-def ingest(raw_path, to_dir):
-    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
-    mlflow.set_experiment("Data Ingestion")
-
-    df = pd.read_csv(raw_path)
-    df = fix_duplicates(df)
-    df = fix_label_conflicts(df)
-
-    rs = config.RANDOM_STATE
-    metrics = {
-        "dataset_size": len(df),
-        "train_split": config.TRAIN_SPLIT,
-        "val_split": config.VAL_SPLIT,
-        "test_split": config.TEST_SPLIT,
-        "random_state": rs,
-    }
-
-    with mlflow.start_run(run_name="Split Dataset") as run:
-        mlflow.set_tag("run_id", run.info.run_id)
-        df_train, df_test = train_test_split(
-            df,
-            train_size=config.TRAIN_SPLIT,
-            stratify=df[config.TARGET],
-            random_state=rs,
-        )
-        df_test, df_val = train_test_split(
-            df_test,
-            test_size=config.TEST_VAL_SPLIT,
-            stratify=df_test[config.TARGET],
-            random_state=rs,
-        )
-
-        metrics["train_size"] = len(df_train)
-        metrics["val_size"] = len(df_val)
-        metrics["test_size"] = len(df_test)
-
-        y_full = df[config.TARGET]
-        y_train = df_train[config.TARGET]
-        y_val = df_val[config.TARGET]
-        y_test = df_test[config.TARGET]
-
-        pos_full = y_full.value_counts(normalize=True)[1]
-        pos_train = y_train.value_counts(normalize=True)[1]
-        pos_val = y_val.value_counts(normalize=True)[1]
-        pos_test = y_test.value_counts(normalize=True)[1]
-
-        metrics["positive_ratio_full"] = round(float(pos_full), 6)
-        metrics["positive_ratio_train"] = round(float(pos_train), 6)
-        metrics["positive_ratio_val"] = round(float(pos_val), 6)
-        metrics["positive_ratio_test"] = round(float(pos_test), 6)
-
-        metrics["positive_count_train"] = y_train.value_counts()[1]
-        metrics["negative_count_train"] = y_train.value_counts()[0]
-
-        df_train.to_csv(to_dir / config.TRAIN_FILE, header=True, index=False)
-        df_val.to_csv(to_dir / config.VAL_FILE, header=True, index=False)
-        df_test.to_csv(to_dir / config.TEST_FILE, header=True, index=False)
-        mlflow.log_metrics(metrics)
-        mlflow.end_run()
-
-
-def main():
-    raw_path = Path(config.DATA_PATH) / "raw" / config.RAW_FILE
-    if not os.path.exists(raw_path):
+def ingest(mlflow_tracking: bool = settings.MLFLOW_TRACKING) -> None:
+    raw_path = settings.DATA_DIR / "raw" / settings.RAW_FILE
+    if not raw_path.exists():
         raise FileNotFoundError(
-            "Raw dataset not found. You may need to reinstall this package."
+            "Raw dataset not found. Please run ``dvc pull`` and try again."
         )
 
-    to_dir = Path(config.DATA_PATH) / "prepared"
-    if not os.path.exists(to_dir):
-        os.mkdir(to_dir)
+    to_dir = settings.DATA_DIR / "prepared"
+    to_dir.mkdir(exist_ok=True)
+    os.environ["DP_INGEST_DIR"] = str(to_dir)
+
     if (
-        os.path.exists(to_dir / config.TRAIN_FILE)
-        or os.path.exists(to_dir / config.VAL_FILE)
-        or os.path.exists(to_dir / config.TEST_FILE)
+        os.path.exists(to_dir / settings.TRAIN_FILE)
+        or os.path.exists(to_dir / settings.VAL_FILE)
+        or os.path.exists(to_dir / settings.TEST_FILE)
     ):
-        print("[INFO] Dataset is already ingested.")
+        logger.info("Data is already ingested.")
         return
 
-    ingest(raw_path, to_dir)
-    print("[INFO] Raw dataset successfully ingested.")
+    df = pd.read_csv(raw_path)
+
+    if mlflow_tracking:
+        mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
+        mlflow.set_experiment("Data Ingestion")
+
+        df = track_duplicates(df)
+        df = track_label_conflicts(df)
+        track_data_splits(df)
+    else:
+        df, _ = fix_duplicates(df)
+        df, _ = fix_label_conflicts(df)
+        _ = split_data(df)
+
+    logger.info("Data ingestion completed.")
 
 
 if __name__ == "__main__":
-    main()
+    configure_logging()
+    ingest()
