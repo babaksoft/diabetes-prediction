@@ -4,9 +4,10 @@ from pathlib import Path
 # Global config
 RANDOM_STATE = 147
 PROJECT_NAME = "diabetes-prediction"
+MLFLOW_TRACKING = True  # Only used in reproducible training demo
 MLFLOW_TRACKING_URI = "http://localhost:5000/"
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 
 # Path config
 DATA_DIR = PACKAGE_ROOT / "data"
