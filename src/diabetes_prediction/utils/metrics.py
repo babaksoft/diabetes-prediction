@@ -1,3 +1,5 @@
+import logging
+
 import matplotlib.pyplot as plt
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
@@ -10,6 +12,8 @@ from sklearn.metrics import (
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.utils.common import predict_with_threshold
+
+logger = logging.getLogger(__name__)
 
 
 def get_metrics(model, x, y, threshold, prefix=None):

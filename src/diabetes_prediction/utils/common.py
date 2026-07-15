@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Any
 
@@ -9,6 +10,8 @@ from sklearn.pipeline import Pipeline
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
+
+logger = logging.getLogger(__name__)
 
 
 def get_data(split_name: str = "train"):

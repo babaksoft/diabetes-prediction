@@ -4,7 +4,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from diabetes_prediction.config import config
+from diabetes_prediction.config import settings
 
 
 def build_pipeline() -> ColumnTransformer:
@@ -18,9 +18,9 @@ def build_pipeline() -> ColumnTransformer:
 
     return ColumnTransformer(
         [
-            ("categorical", cat_pipeline, config.CATEGORICAL_FEATURES),
-            ("numerical", num_pipeline, config.NUMERICAL_FEATURES),
-            ("binary", bin_transform, config.BINARY_FEATURES),
+            ("categorical", cat_pipeline, settings.CATEGORICAL_FEATURES),
+            ("numerical", num_pipeline, settings.NUMERICAL_FEATURES),
+            ("binary", bin_transform, settings.BINARY_FEATURES),
         ]
     )
 
