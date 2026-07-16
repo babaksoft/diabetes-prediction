@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: src/diabetes_prediction/api/Dockerfile
     container_name: diabetes_api
-    restart: always
+    restart: unless-stopped
     ports:
       - "8000:8000"
     networks:
@@ -14,7 +14,7 @@ services:
       context: .
       dockerfile: src/diabetes_prediction/app/Dockerfile
     container_name: diabetes_app
-    restart: always
+    restart: unless-stopped
     ports:
       - "8501:8501"
     networks:

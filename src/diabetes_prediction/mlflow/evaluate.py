@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.pipeline import Pipeline
 
-from diabetes_prediction.config import config
+from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
 from diabetes_prediction.utils import get_data, get_metrics
 
@@ -16,7 +16,7 @@ def get_model():
         "max_iter": 100,
         "validation_fraction": 0.15,
         "class_weight": "balanced",
-        "random_state": config.RANDOM_STATE,
+        "random_state": settings.RANDOM_STATE,
     }
     model = HistGradientBoostingClassifier().set_params(**params)
     transformer = build_pipeline()
@@ -25,7 +25,7 @@ def get_model():
 
 
 def evaluate():
-    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
     mlflow.set_experiment(experiment_name="Final Evaluation")
     with mlflow.start_run(run_name="main") as run:
         mlflow.set_tag("run_id", run.info.run_id)
@@ -40,17 +40,17 @@ def evaluate():
         pipeline.fit(x, y)
 
         x_test, y_test = get_data("test")
-        metrics["triage_threshold"] = config.TRIAGE_THRESHOLD
+        metrics["triage_threshold"] = settings.TRIAGE_THRESHOLD
         metrics.update(
             get_metrics(
-                pipeline, x_test, y_test, config.TRIAGE_THRESHOLD, prefix="triage"
+                pipeline, x_test, y_test, settings.TRIAGE_THRESHOLD, prefix="triage"
             )
         )
 
-        metrics["balanced_threshold"] = config.BALANCED_THRESHOLD
+        metrics["balanced_threshold"] = settings.BALANCED_THRESHOLD
         metrics.update(
             get_metrics(
-                pipeline, x_test, y_test, config.BALANCED_THRESHOLD, prefix="balanced"
+                pipeline, x_test, y_test, settings.BALANCED_THRESHOLD, prefix="balanced"
             )
         )
 

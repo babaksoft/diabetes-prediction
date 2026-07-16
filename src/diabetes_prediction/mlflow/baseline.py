@@ -3,12 +3,12 @@ from typing import Any
 import mlflow
 from sklearn.naive_bayes import GaussianNB
 
-from diabetes_prediction.config import config
+from diabetes_prediction.config import settings
 from diabetes_prediction.utils import evaluate_model
 
 
 def evaluate_baseline() -> dict[str, Any]:
-    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
     mlflow.set_experiment("Baseline Model")
     model = GaussianNB()
     return evaluate_model(model=model, run_name="main")

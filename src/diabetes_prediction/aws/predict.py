@@ -57,7 +57,7 @@ def demo_predictions(x_batch_, y_batch_, mode):
     print(f"\nInvoking endpoint (mode={mode}, threshold={threshold})")
     print("-------------------------------------------------------\n")
     print("Input batch :\n", x_batch_)
-    output = predict(x_batch, mode=mode)
+    output = predict(x_batch_, mode=mode)
     show_predictions(y_batch_, output)
 
 

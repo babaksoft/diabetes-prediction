@@ -57,10 +57,9 @@ def output_fn(predictions, accept):
     return json.dumps(predictions, sort_keys=False, indent=2), accept
 
 
+# Must be run as script from aws folder
 def smoke_test():
-    df = pd.read_csv(
-        "../data/prepared/test.csv"
-    )  # Must be run as script from aws folder
+    df = pd.read_csv("../data/prepared/test.csv")
     data = df.drop("diabetes", axis=1).iloc[25:30, :]
     data["mode"] = "triage"
     bundle = {

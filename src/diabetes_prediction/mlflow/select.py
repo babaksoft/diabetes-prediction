@@ -6,7 +6,7 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 
-from diabetes_prediction.config import config
+from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
 from diabetes_prediction.utils import get_data
 
@@ -19,7 +19,7 @@ def analyze_thresholds_triage(name, model, x, y):
     # Based on our business requirements for triage model :
     # Recall >= 0.96, Precision >= 0.25
     valid_idx = np.where(
-        (recalls >= config.MIN_RECALL) & (precisions >= config.MIN_PRECISION)
+        (recalls >= settings.MIN_RECALL) & (precisions >= settings.MIN_PRECISION)
     )[
         0
     ]  # This returns a one-element tuple of indices
@@ -86,7 +86,7 @@ def get_boosting_model():
         "max_iter": 100,
         "validation_fraction": 0.15,
         "class_weight": "balanced",
-        "random_state": config.RANDOM_STATE,
+        "random_state": settings.RANDOM_STATE,
     }
     model = HistGradientBoostingClassifier().set_params(**params)
     transform = build_pipeline()
@@ -105,7 +105,7 @@ def get_logistic_model():
         "C": 5.0,
         "max_iter": 1000,
         "class_weight": "balanced",
-        "random_state": config.RANDOM_STATE,
+        "random_state": settings.RANDOM_STATE,
     }
     model = LogisticRegression().set_params(**params)
     transform = build_pipeline()
@@ -194,7 +194,7 @@ def log_balanced_run(x, y):
 
 
 def analyze_thresholds():
-    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
     mlflow.set_experiment(experiment_name="Model Selection")
     x_val, y_val = get_data("validation")
     log_triage_run(x_val, y_val)

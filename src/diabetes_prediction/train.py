@@ -33,7 +33,7 @@ def train():
     transformer = build_pipeline()
     pipeline = Pipeline([("transformer", transformer), ("estimator", hgb_clf)])
 
-    logger.info("Final model: %s", type(hgb_clf).__name__)
+    logger.info("Model: %s", type(hgb_clf).__name__)
     logger.info("Parameters: %s", str(hgb_clf.get_params()))
 
     start = datetime.now()

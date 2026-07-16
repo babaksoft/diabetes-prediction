@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import joblib
@@ -15,12 +14,19 @@ BALANCED_THRESHOLD = 0.8871
 def load_model():
     curr_dir = Path(__file__).resolve().parent
     path = curr_dir / "hgb_pipeline.joblib"
-    if not os.path.exists(path):
+    if not path.exists():
         raise FileNotFoundError("Model file not found.")
+
     return joblib.load(path)
 
 
-app = FastAPI()
+app = FastAPI(
+    title="Diabetes Risk Prediction API",
+    summary="Predicts diabetes risk using two operation modes: "
+    "triage (high recall) and balanced (high precision).",
+    description="For more information, consult project documentation at: "
+    "`https://github.com/babaksoft/diabetes-prediction/README.md`",
+)
 model = load_model()
 
 
@@ -32,9 +38,10 @@ def predict_with_threshold(x, threshold):
 @app.get("/")
 async def index():
     info = {
-        "name": "Diabetes Prediction App (v0.1)",
-        "description": "Predicts the onset of diabetes. For usage hints and examples, "
-        "please consult API documentation at '/docs'.",
+        "name": "Diabetes Risk Prediction (v0.1)",
+        "description": "Predicts diabetes risk using strict business policies. "
+        "For usage hints and examples, please consult API "
+        "documentation at `/docs`.",
     }
     return info
 
@@ -44,7 +51,7 @@ async def predict(diabetes: Diabetes, mode: str = "triage"):
     threshold = TRIAGE_THRESHOLD if mode == "triage" else BALANCED_THRESHOLD
     data = diabetes.as_dataframe()
     prediction = predict_with_threshold(data, threshold)
-    output = np.where(prediction == 1, "Diabetes", "No Diabetes").tolist()
+    output = np.where(prediction == 1, "Positive", "Negative").tolist()
     return {"prediction": output[0]}
 
 

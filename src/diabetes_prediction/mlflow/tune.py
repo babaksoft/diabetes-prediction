@@ -6,13 +6,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import Pipeline
 
-from diabetes_prediction.config import config
+from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
 from diabetes_prediction.utils import get_data
 
 
 def tune_model(name, model, x, y, param_grid):
-    rs = config.RANDOM_STATE
+    rs = settings.RANDOM_STATE
     scoring = "average_precision"
     params = {
         "model_type": type(model).__name__,
@@ -50,9 +50,9 @@ def tune_model(name, model, x, y, param_grid):
 
 
 def tune_models():
-    rs = config.RANDOM_STATE
+    rs = settings.RANDOM_STATE
 
-    mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+    mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
     mlflow.set_experiment(experiment_name="Hyperparameter Tuning")
     x_train, y_train = get_data()
 
