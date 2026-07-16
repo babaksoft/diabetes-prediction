@@ -1,7 +1,9 @@
 import logging
+from typing import Any
 
 import joblib
 import mlflow
+import pandas as pd
 from mlflow.models import infer_signature
 
 from diabetes_prediction.config import settings
@@ -9,7 +11,7 @@ from diabetes_prediction.config import settings
 logger = logging.getLogger(__name__)
 
 
-def save_model(model, x, model_name="HGBClassifier"):
+def save_model(model: Any, x: pd.DataFrame, model_name: str = "HGBClassifier") -> None:
     if settings.MLFLOW_TRACKING:
         logger.info("Registering model: model_name=%s", model_name)
 
@@ -31,7 +33,7 @@ def save_model(model, x, model_name="HGBClassifier"):
     logger.info("Saved model to local path: %s", local_path)
 
 
-def load_model(model_name="HGBClassifier", stage="None"):
+def load_model(model_name: str = "HGBClassifier", stage: str = "None") -> Any:
     logger.info("Loading model: model_name=%s stage=%s", model_name, stage)
 
     mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
@@ -42,12 +44,16 @@ def load_model(model_name="HGBClassifier", stage="None"):
     model_uri = f"models:/{model_name}/{stage}"
     model = mlflow.sklearn.load_model(model_uri=model_uri, dst_path=mlflow_path)
 
-    logger.info("Loaded model from MLflow Registry: model_uri=%s", model_uri)
+    logger.info(
+        "Loaded '%s' from MLflow Registry: model_uri=%s",
+        model_name,
+        model_uri,
+    )
 
     return model
 
 
-def load_local_model():
+def load_local_model() -> Any:
     try:
         path = settings.MODEL_DIR / "hgb_pipeline.joblib"
         logger.info("Loading model from local path: %s", str(path))

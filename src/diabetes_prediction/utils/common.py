@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 def get_data(split_name: str = "train"):
+    if not split_name:
+        split_name = "train"
+
+    logger.info("Loading %s dataset.", split_name)
+
     files = {
         "train": settings.TRAIN_FILE,
         "validation": settings.VAL_FILE,
@@ -27,20 +32,27 @@ def get_data(split_name: str = "train"):
 
     path = settings.DATA_DIR / "prepared" / file
     if not path.exists():
-        raise FileNotFoundError("Dataset not found. Please run ``ingest.py`` first.")
+        raise FileNotFoundError(
+            f"{split_name.title()} dataset not found. Please run ``ingest.py`` first."
+        )
 
     df = pd.read_csv(path)
     x = df.drop(settings.TARGET, axis=1)
     y = df[settings.TARGET]
+
+    logger.info("%s dataset loaded from: %s", split_name.title(), str(path))
+    logger.info("shape_x=%s shape_y=%s", x.shape, y.shape)
+
     return x, y
 
 
-def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
+def evaluate_model(
+    model: Any, run_name: str, model_name: str | None = None
+) -> dict[str, Any]:
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.set_tag("run_id", run.info.run_id)
 
-        if not model_name:
-            model_name = type(model).__name__
+        model_name = model_name or type(model).__name__
         x, y = get_data()
         cv = StratifiedKFold(
             n_splits=10, shuffle=True, random_state=settings.RANDOM_STATE
@@ -73,6 +85,10 @@ def evaluate_model(model, run_name, model_name=None) -> dict[str, Any]:
         return metrics
 
 
-def predict_with_threshold(model, x, threshold):
+def predict_with_threshold(
+    model: Any,
+    x: pd.DataFrame,
+    threshold: float,
+) -> np.ndarray:
     probabilities = model.predict_proba(x)[:, 1]
     return np.array(probabilities >= threshold, dtype=np.int8)
