@@ -22,6 +22,7 @@ classifiers = [
 
 dependencies = [
     "joblib",
+    "mlflow",
     "numpy",
     "pandas",
     "scikit-learn",
@@ -32,7 +33,6 @@ train = [
     "boto3",
     "dvc[s3]",
     "matplotlib",
-    "mlflow",
     "python-dotenv",
     "sagemaker",
     "tqdm",
@@ -66,8 +66,19 @@ app = [
 Homepage = "https://github.com/babaksoft/diabetes-prediction"
 Issues = "https://github.com/babaksoft/diabetes-prediction/issues"
 
+[tool.black]
+target-version = ["py312"]
+
 [tool.isort]
 profile = "black"
+src_paths = ["src", "tests"]
+
+[tool.ruff]
+src = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.hatch.build]
 sources = ["src"]
