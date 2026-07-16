@@ -1,60 +1,61 @@
 import pandas as pd
 import pytest
 
-from diabetes_prediction.config import config
-from diabetes_prediction.predict import make_local_prediction
+from diabetes_prediction.config import settings
+from diabetes_prediction.predict import local_predict
 
 
 @pytest.fixture
 def triage_prediction():
-    """ This function will use triage operation mode to make inference
-     for a single record"""
-    single_test = pd.Series(config.TEST_INSTANCE)
-    result = make_local_prediction(
-        input_data=[single_test], mode="triage"
-    )
-    return result
+    """Use triage operation mode to make inference for a single record"""
+
+    ser_data = pd.Series(settings.TEST_INSTANCE)
+    df_data = pd.DataFrame([ser_data])
+    result = local_predict(x_batch=df_data, mode="triage")
+    return result["predictions"][0]
 
 
 @pytest.fixture
 def balanced_prediction():
-    """ This function will use balanced operation mode to make inference
-     for a single record"""
-    single_test = pd.Series(config.TEST_INSTANCE)
-    result = make_local_prediction(
-        input_data=[single_test], mode="balanced"
-    )
-    return result
+    """Use balanced operation mode to make inference for a single record"""
+
+    ser_data = pd.Series(settings.TEST_INSTANCE)
+    df_data = pd.DataFrame([ser_data])
+    result = local_predict(x_batch=df_data, mode="balanced")
+    return result["predictions"][0]
 
 
 def test_triage_prediction_not_none(triage_prediction):
-    """ This function will check if result of prediction is not None"""
+    """Prediction for test instance in triage mode must not be None."""
+
     assert triage_prediction is not None
 
 
 def test_triage_prediction_dtype(triage_prediction):
-    """ This function will check if data type of prediction result
-     is str i.e. string """
-    assert isinstance(triage_prediction.get("predictions")[0], str)
+    """Prediction for test instance in triage mode must be a string value."""
+
+    assert isinstance(triage_prediction, str)
 
 
 def test_triage_prediction_output(triage_prediction):
-    """ This function will check if result of prediction is No """
-    # Correct prediction for the first test data point is "No diabetes"
-    assert triage_prediction.get("predictions")[0] == "No"
+    """Prediction for test instance in triage mode must be 'Negative'."""
+
+    assert triage_prediction == "Negative"
 
 
 def test_balanced_prediction_not_none(balanced_prediction):
-    """ This function will check if result of prediction is not None"""
+    """Prediction for test instance in balanced mode must not be None."""
+
     assert balanced_prediction is not None
 
 
 def test_balanced_prediction_dtype(balanced_prediction):
-    """ This function will check if data type of result of prediction is str i.e. string """
-    assert isinstance(balanced_prediction.get("predictions")[0], str)
+    """Prediction for test instance in balanced mode must be a string value."""
+
+    assert isinstance(balanced_prediction, str)
 
 
 def test_balanced_prediction_output(balanced_prediction):
-    """ This function will check if result of prediction is No """
-    # Correct prediction for the first test data point is "No diabetes"
-    assert balanced_prediction.get("predictions")[0] == "No"
+    """Prediction for test instance in balanced mode must be 'Negative'."""
+
+    assert balanced_prediction == "Negative"

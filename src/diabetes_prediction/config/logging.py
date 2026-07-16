@@ -6,13 +6,7 @@ from diabetes_prediction.config import settings
 def configure_logging() -> None:
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(
-        logging.Formatter(
-            "[%(asctime)s] "
-            "[%(name)s] "
-            "[%(levelname)s] "
-            "[%(module)s:%(lineno)d] "
-            "%(message)s"
-        )
+        logging.Formatter("[%(name)s] [%(levelname)s] %(message)s")
     )
 
     logging.basicConfig(
