@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from pprint import pprint
 
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
@@ -34,7 +35,8 @@ def train():
     pipeline = Pipeline([("transformer", transformer), ("estimator", hgb_clf)])
 
     logger.info("Model: %s", type(hgb_clf).__name__)
-    logger.info("Parameters: %s", str(hgb_clf.get_params()))
+    logger.info("Parameters:")
+    pprint(hgb_clf.get_params(), indent=2, sort_dicts=False)
 
     start = datetime.now()
     pipeline.fit(x, y)

@@ -18,7 +18,7 @@ from diabetes_prediction.utils.ingest import (
 logger = logging.getLogger(__name__)
 
 
-def ingest(mlflow_tracking: bool = settings.MLFLOW_TRACKING) -> None:
+def ingest() -> None:
     raw_path = settings.DATA_DIR / "raw" / settings.RAW_FILE
     if not raw_path.exists():
         raise FileNotFoundError(
@@ -39,7 +39,7 @@ def ingest(mlflow_tracking: bool = settings.MLFLOW_TRACKING) -> None:
 
     df = pd.read_csv(raw_path)
 
-    if mlflow_tracking:
+    if settings.MLFLOW_TRACKING:
         mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
         mlflow.set_experiment("Data Ingestion")
 

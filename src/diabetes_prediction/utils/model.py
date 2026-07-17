@@ -56,10 +56,9 @@ def load_model(model_name: str = "HGBClassifier", stage: str = "None") -> Any:
 def load_local_model() -> Any:
     try:
         path = settings.MODEL_DIR / "hgb_pipeline.joblib"
-        logger.info("Loading model from local path: %s", str(path))
-
         model = joblib.load(path)
-        logger.info("Model found and loaded.")
+
+        logger.info("Loaded model from: %s", str(path))
 
         return model
     except FileNotFoundError:
