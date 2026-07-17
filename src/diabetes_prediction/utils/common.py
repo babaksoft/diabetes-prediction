@@ -14,7 +14,7 @@ from diabetes_prediction.pipeline import build_pipeline
 logger = logging.getLogger(__name__)
 
 
-def get_data(split_name: str = "train"):
+def load_data(split_name: str = "train"):
     if not split_name:
         split_name = "train"
 
@@ -53,7 +53,7 @@ def evaluate_model(
         mlflow.set_tag("run_id", run.info.run_id)
 
         model_name = model_name or type(model).__name__
-        x, y = get_data()
+        x, y = load_data()
         cv = StratifiedKFold(
             n_splits=10, shuffle=True, random_state=settings.RANDOM_STATE
         )

@@ -5,7 +5,7 @@ import pandas as pd
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.config.logging import configure_logging
-from diabetes_prediction.utils.common import get_data
+from diabetes_prediction.utils.common import load_data
 from diabetes_prediction.utils.model import (
     load_local_model,
     load_model,
@@ -92,7 +92,7 @@ def demo_predictions(
 
 
 def predict() -> None:
-    x, y = get_data("test")
+    x, y = load_data("test")
     x_batch = x.iloc[345:350, :]
     y_batch = y.iloc[345:350]
 

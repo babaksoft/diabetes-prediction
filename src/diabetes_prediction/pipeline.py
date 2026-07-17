@@ -23,6 +23,3 @@ def build_pipeline() -> ColumnTransformer:
             ("binary", bin_transform, settings.BINARY_FEATURES),
         ]
     )
-
-
-pipeline = build_pipeline()

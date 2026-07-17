@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
-from diabetes_prediction.utils import get_data
+from diabetes_prediction.utils.common import load_data
 
 
 def analyze_thresholds_triage(name, model, x, y):
@@ -73,7 +73,7 @@ def get_baseline_model():
     transform = build_pipeline()
     pipeline = Pipeline([("transformer", transform), ("estimator", GaussianNB())])
 
-    x, y = get_data("train")
+    x, y = load_data("train")
     pipeline.fit(x, y)
     return pipeline
 
@@ -92,7 +92,7 @@ def get_boosting_model():
     transform = build_pipeline()
     pipeline = Pipeline([("transform", transform), ("estimator", model)])
 
-    x, y = get_data("train")
+    x, y = load_data("train")
     pipeline.fit(x, y)
     return pipeline
 
@@ -111,7 +111,7 @@ def get_logistic_model():
     transform = build_pipeline()
     pipeline = Pipeline([("transform", transform), ("estimator", model)])
 
-    x, y = get_data("train")
+    x, y = load_data("train")
     pipeline.fit(x, y)
     return pipeline
 
@@ -196,7 +196,7 @@ def log_balanced_run(x, y):
 def analyze_thresholds():
     mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
     mlflow.set_experiment(experiment_name="Model Selection")
-    x_val, y_val = get_data("validation")
+    x_val, y_val = load_data("validation")
     log_triage_run(x_val, y_val)
     log_balanced_run(x_val, y_val)
 

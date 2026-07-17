@@ -5,7 +5,8 @@ from sklearn.pipeline import Pipeline
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
-from diabetes_prediction.utils import get_data, get_metrics
+from diabetes_prediction.utils.common import load_data
+from diabetes_prediction.utils.metrics import get_metrics
 
 
 def get_model():
@@ -32,14 +33,14 @@ def evaluate():
         mlflow.sklearn.autolog()
         metrics = {}
 
-        x_train, y_train = get_data("train")
-        x_val, y_val = get_data("validation")
+        x_train, y_train = load_data("train")
+        x_val, y_val = load_data("validation")
         x = pd.concat([x_train, x_val], axis=0)
         y = pd.concat([y_train, y_val], axis=0)
         pipeline = get_model()
         pipeline.fit(x, y)
 
-        x_test, y_test = get_data("test")
+        x_test, y_test = load_data("test")
         metrics["triage_threshold"] = settings.TRIAGE_THRESHOLD
         metrics.update(
             get_metrics(

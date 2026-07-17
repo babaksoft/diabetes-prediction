@@ -2,7 +2,7 @@ import logging
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.config.logging import configure_logging
-from diabetes_prediction.utils.common import get_data
+from diabetes_prediction.utils.common import load_data
 from diabetes_prediction.utils.metrics import (
     get_metrics,
     save_artifacts,
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def evaluate() -> None:
-    x_test, y_test = get_data("test")
+    x_test, y_test = load_data("test")
     pipeline = load_model() if settings.MLFLOW_TRACKING else load_local_model()
 
     logger.info(

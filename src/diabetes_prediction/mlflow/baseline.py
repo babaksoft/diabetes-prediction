@@ -4,7 +4,7 @@ import mlflow
 from sklearn.naive_bayes import GaussianNB
 
 from diabetes_prediction.config import settings
-from diabetes_prediction.utils import evaluate_model
+from diabetes_prediction.utils.common import evaluate_model
 
 
 def evaluate_baseline() -> dict[str, Any]:

@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 
 from diabetes_prediction.config import settings
 from diabetes_prediction.pipeline import build_pipeline
-from diabetes_prediction.utils import get_data
+from diabetes_prediction.utils.common import load_data
 
 
 def tune_model(name, model, x, y, param_grid):
@@ -54,7 +54,7 @@ def tune_models():
 
     mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
     mlflow.set_experiment(experiment_name="Hyperparameter Tuning")
-    x_train, y_train = get_data()
+    x_train, y_train = load_data()
 
     ## Tune first model shortlisted for tuning (Hist-GB)
     hgb_clf = HistGradientBoostingClassifier(class_weight="balanced", random_state=rs)
