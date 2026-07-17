@@ -7,6 +7,7 @@ from diabetes_prediction.utils.metrics import (
     get_metrics,
     save_artifacts,
     save_metrics,
+    save_shap_plots,
 )
 from diabetes_prediction.utils.model import (
     load_local_model,
@@ -35,6 +36,8 @@ def evaluate() -> None:
     metrics = get_metrics(pipeline, x_test, y_test, settings.BALANCED_THRESHOLD)
     save_metrics(metrics, mode="balanced")
     save_artifacts(pipeline, x_test, y_test, mode="balanced")
+
+    save_shap_plots(pipeline, x_test)
 
 
 if __name__ == "__main__":

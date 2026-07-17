@@ -4,6 +4,8 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import shap.plots as plots
+from shap import Explanation, TreeExplainer
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
     PrecisionRecallDisplay,
@@ -116,3 +118,77 @@ def save_artifacts(model: Any, x: pd.DataFrame, y: pd.Series, mode: str) -> None
     plot_confusion_matrix(model, x, y, mode)
     plot_roc_curve(model, x, y)
     plot_pr_curve(model, x, y)
+
+
+def get_shap_values(pipeline: Pipeline, x: pd.DataFrame) -> Explanation:
+    transformer = pipeline.named_steps["transformer"]
+    feature_names = transformer.get_feature_names_out()
+    x_trans = pd.DataFrame(
+        transformer.transform(x),
+        columns=feature_names,
+        index=x.index,
+    )
+
+    rename = {
+        "categorical__gender_Female": "Gender: Female",
+        "categorical__gender_Male": "Gender: Male",
+        "categorical__gender_Other": "Gender: Other",
+        "categorical__smoking_history_No Info": "Smoking: No Info",
+        "categorical__smoking_history_current": "Smoking: Current",
+        "categorical__smoking_history_ever": "Smoking: Ever",
+        "categorical__smoking_history_former": "Smoking: Former",
+        "categorical__smoking_history_never": "Smoking: Never",
+        "categorical__smoking_history_not current": "Smoking: Not Current",
+        "numerical__age": "Age",
+        "numerical__bmi": "BMI",
+        "numerical__HbA1c_level": "HbA1c",
+        "numerical__blood_glucose_level": "Blood Glucose",
+        "binary__hypertension": "Hypertension",
+        "binary__heart_disease": "Heart Disease",
+    }
+    x_trans.rename(columns=rename, inplace=True)
+    explainer = TreeExplainer(pipeline.named_steps["estimator"])
+
+    return explainer(x_trans)
+
+
+def save_shap_plots(pipeline: Pipeline, x: pd.DataFrame):
+    shap_values = get_shap_values(pipeline, x)
+
+    # Summary / Feature importance plot
+    path = settings.METRICS_DIR / "shap_feature_importance.png"
+
+    plt.figure(figsize=(8, 6))
+    plots.bar(shap_values, show=False)
+    plt.tight_layout()
+
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close()
+    logger.info("SHAP feature importance plot saved to: %s", str(path))
+
+    # Beeswarm plot
+    path = settings.METRICS_DIR / "shap_beeswarm.png"
+
+    plt.figure(figsize=(10, 8))
+    plots.beeswarm(shap_values, show=False)
+    plt.tight_layout()
+
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close()
+    logger.info("SHAP beeswarm plot saved to: %s", str(path))
+
+    # Waterfall plot on single data point (index=349)
+    index = 349
+    path = settings.METRICS_DIR / "shap_waterfall.png"
+
+    plt.figure(figsize=(10, 6))
+    plots.waterfall(shap_values[index], show=False)
+    plt.tight_layout()
+
+    plt.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close()
+    logger.info(
+        "SHAP waterfall plot on test instance (index=%d) saved to: %s",
+        index,
+        str(path),
+    )

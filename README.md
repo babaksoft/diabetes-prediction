@@ -239,9 +239,36 @@ The system is deployed locally using:
 The inference API supports both operating modes via a query parameter.
 Models are loaded from frozen artifacts exported from MLflow.
 
+## Model Explainability (SHAP)
+
+**Note:** SHAP explanations are computed on the model's transformed feature space after preprocessing.
+Categorical variables are one-hot encoded and numerical variables are standardized by the same fitted
+preprocessing pipeline used during training.
+
+### Summary / Feature Importance Plot
+
+![Summary](./src/diabetes_prediction/metrics/shap_feature_importance.png)
+
+### Beeswarm Plot
+
+![Beeswarm](./src/diabetes_prediction/metrics/shap_beeswarm.png)
+
+### Waterfall Plot (Test Set Example @349)
+
+![Waterfall](./src/diabetes_prediction/metrics/shap_waterfall.png)
+
+### Conclusion
+
+SHAP analysis shows that the model's predictions are driven primarily by **HbA1c** and **Blood Glucose**,
+followed by **Age** and **BMI**. This aligns well with established medical knowledge about diabetes risk
+factors.
+
+Local explanations further demonstrate how individual features contribute to a prediction, allowing clinicians
+to understand why the model considered a specific patient to be at high or low risk.
+
+The explanations remain the same regardless of the chosen operating threshold (triage or balanced),
+since SHAP explains the model's estimated probability rather than the downstream decision policy.
+
 ## Future Improvements
 
-- SHAP-based model explainability
 - Monitoring with Prometheus & Grafana
-- Data drift detection using whylogs
-- CI-driven model promotion
