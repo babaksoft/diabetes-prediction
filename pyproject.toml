@@ -35,6 +35,7 @@ train = [
     "matplotlib",
     "python-dotenv",
     "sagemaker",
+    "shap",
     "tqdm",
 ]
 
