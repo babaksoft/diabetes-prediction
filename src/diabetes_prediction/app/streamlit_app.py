@@ -1,38 +1,24 @@
 import streamlit as st
 
 from diabetes_prediction.app.api_client import post_data
+from diabetes_prediction.app.diabetes import DiabetesData
 
 
 @st.cache_data()
 def get_prediction(
     mode: str,
-    gender: str,
-    age: int,
-    hypertension: str,
-    heart_disease: str,
-    smoking: str,
-    bmi: float,
-    mean_glucose: float,
-    glucose: float,
-):
-    url = f"http://api:8000/predict?mode={mode}"
-    # url = f"http://localhost:8000/predict?mode={mode}"  # Uncomment for local inference
-    diabetes = {
-        "Gender": gender,
-        "Age": age,
-        "Hypertension": 1 if hypertension == "yes" else 0,
-        "HeartDisease": 1 if heart_disease == "Yes" else 0,
-        "SmokingHistory": smoking,
-        "BMI": bmi,
-        "MeanGlucoseLevel": mean_glucose,
-        "GlucoseLevel": glucose,
-    }
-    result = post_data(url, diabetes)
+    data: DiabetesData,
+) -> str:
+    # url = f"http://api:8000/predict?mode={mode}"
+    url = f"http://localhost:8000/predict?mode={mode}"  # Uncomment for local inference
+    payload = data.__dict__
+    payload["hypertension"] = float(payload["hypertension"] == "Yes")
+    payload["heart_disease"] = float(payload["heart_disease"] == "Yes")
+    result = post_data(url, [payload])
     if not result["data"]:
         return result["message"]
 
-    prediction = result["data"]["prediction"] if result["data"] else None
-    return prediction
+    return str(result["data"]["predictions"][0])
 
 
 def main():
@@ -62,24 +48,22 @@ def main():
     glucose = st.number_input("Blood sugar :", 80, 300)
 
     if st.button("Predict"):
-        result = get_prediction(
-            str(mode).lower(),
-            gender,
-            age,
-            hypertension,
-            heart_disease,
-            smoking,
-            bmi,
-            mean_glucose,
-            glucose,
+        data = DiabetesData(
+            gender=gender,
+            age=age,
+            hypertension=hypertension,
+            heart_disease=heart_disease,
+            smoking_history=smoking,
+            bmi=bmi,
+            HbA1c_level=mean_glucose,
+            blood_glucose_level=glucose,
         )
+        result = get_prediction(str(mode).lower(), data)
 
-        pos_msg = "Congratulations! You do NOT have diabetes."
-        neg_msg = "You MAY have diabetes. Please consult your physician."
-        if result == "No Diabetes":
-            st.success(pos_msg)
-        elif result == "Diabetes":
-            st.warning(neg_msg)
+        if result == "Negative":
+            st.success("Congratulations! You do NOT have diabetes.")
+        elif result == "Positive":
+            st.warning("You MAY have diabetes. Please consult your physician.")
         else:
             st.error(result)
 
