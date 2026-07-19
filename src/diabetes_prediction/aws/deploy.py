@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from sagemaker.sklearn.model import SKLearnModel
+
 from utils import get_session_role
 
 FRAMEWORK_VERSION = "1.4-2"
@@ -14,7 +15,7 @@ def deploy():
         f"/models/model.tar.gz"
     )
     model = SKLearnModel(
-        entry_point="inference.py",
+        entry_point="sm_inference.py",
         model_data=model_data,
         role=role,
         framework_version=FRAMEWORK_VERSION,
@@ -24,7 +25,7 @@ def deploy():
     endpoint_name = f"diabetes-predictor-{timestamp}"
     predictor = model.deploy(
         endpoint_name=endpoint_name,
-        instance_type="ml.t2.large",
+        instance_type="ml.t2.medium",
         initial_instance_count=1,
     )
 
