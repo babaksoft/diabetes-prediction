@@ -1,13 +1,22 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
 import joblib
 import numpy as np
 import pandas as pd
+import prometheus_client
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import Response
 
 from diabetes_prediction.api.diabetes import Diabetes
+from diabetes_prediction.api.instrument import (
+    OUTCOME_COUNTER,
+    PREDICT_LATENCY_HIST,
+    PREDICTION_SAMPLES_COUNTER,
+    REQUEST_COUNTER,
+)
 
 TRIAGE_THRESHOLD = 0.3631
 BALANCED_THRESHOLD = 0.8871
@@ -22,14 +31,20 @@ def load_model():
     return joblib.load(path)
 
 
+@asynccontextmanager
+async def lifespan(api: FastAPI):
+    app.state.model = load_model()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Diabetes Risk Prediction API",
     summary="Predicts diabetes risk using two operation modes: "
     "triage (high recall) and balanced (high precision).",
     description="For more information, consult project documentation at: "
     "`https://github.com/babaksoft/diabetes-prediction/blob/master/README.md`",
 )
-model = load_model()
 
 
 def get_predictions(
@@ -41,6 +56,7 @@ def get_predictions(
     if not input:
         return {}
 
+    model = app.state.model
     df_input = pd.DataFrame([pd.Series(item.model_dump()) for item in input])
     probabilities = model.predict_proba(df_input)[:, 1]
     predictions = np.array(probabilities >= threshold, dtype=np.int8)
@@ -60,15 +76,51 @@ async def index():
     return {
         "name": "Diabetes Risk Prediction (v0.1)",
         "description": "Predicts diabetes risk using strict business policies. "
-        "For usage hints and examples, please consult API "
-        "documentation at `/docs`.",
+        "For usage hints and examples, please consult API documentation at `/docs`.",
+    }
+
+
+@app.get("/health")
+async def check_health():
+    if app.state.model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded.")
+
+    return {
+        "status": "healthy",
+        "model": "loaded",
+        "version": "v1",
     }
 
 
 @app.post("/predict")
 async def predict(input: list[Diabetes], mode: str = "triage"):
+    REQUEST_COUNTER.labels(mode=mode).inc()
+    PREDICTION_SAMPLES_COUNTER.labels(mode=mode).inc(len(input))
+
     threshold = TRIAGE_THRESHOLD if mode == "triage" else BALANCED_THRESHOLD
-    return get_predictions(input, threshold, mode)
+    with PREDICT_LATENCY_HIST.time():
+        result = get_predictions(input, threshold, mode)
+
+    positive_count = sum(pred == "Positive" for pred in result["predictions"])
+    negative_count = len(result["predictions"]) - positive_count
+    OUTCOME_COUNTER.labels(
+        mode=mode,
+        prediction="Positive",
+    ).inc(positive_count)
+    OUTCOME_COUNTER.labels(
+        mode=mode,
+        prediction="Negative",
+    ).inc(negative_count)
+
+    return result
+
+
+@app.get("/metrics")
+async def get_metrics():
+    return Response(
+        content=prometheus_client.generate_latest(),
+        media_type=prometheus_client.CONTENT_TYPE_LATEST,
+    )
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ dependencies = [
     "mlflow",
     "numpy",
     "pandas",
+    "prometheus-client",
     "scikit-learn",
 ]
 

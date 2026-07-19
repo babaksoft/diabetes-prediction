@@ -1,4 +1,5 @@
 services:
+
   api:
     build:
       context: .
@@ -9,6 +10,7 @@ services:
       - "8000:8000"
     networks:
       - diabetes-network
+
   app:
     build:
       context: .
@@ -21,6 +23,19 @@ services:
       - diabetes-network
     depends_on:
       - api
+
+  prometheus:
+    image: dhi.io/prometheus:3.11
+    container_name: diabetes_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - diabetes-network
+    depends_on:
+      - api
+
 networks:
   diabetes-network:
     driver: bridge
