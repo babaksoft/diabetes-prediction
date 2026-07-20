@@ -5,7 +5,6 @@ Note : In this module, 'sm' is consistently used as the short form of SageMaker.
 
 import boto3
 from sagemaker.sklearn.estimator import SKLearn
-
 from utils import get_session_role
 
 FRAMEWORK_VERSION = "1.4-2"

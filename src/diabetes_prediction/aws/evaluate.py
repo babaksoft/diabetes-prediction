@@ -3,7 +3,6 @@ import json
 from sagemaker.processing import ProcessingInput, ProcessingOutput
 from sagemaker.s3 import S3Downloader
 from sagemaker.sklearn.processing import SKLearnProcessor
-
 from utils import get_session_role
 
 FRAMEWORK_VERSION = "1.4-2"
