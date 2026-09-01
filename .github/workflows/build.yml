@@ -37,7 +37,7 @@ jobs:
         run: black --check src tests
 
       - name: Run isort
-        run: isort --check src tests
+        run: isort --check-only src tests
 
       - name: Run Ruff
         run: ruff check src tests
